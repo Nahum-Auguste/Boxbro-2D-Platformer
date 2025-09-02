@@ -1,10 +1,10 @@
 import Mesh from "./mesh.js";
 import Vertex from "./vertex.js";
-import * as Draw from "../draw.js";
+import Vector from "./vector.js";
 
 export default class Geometry {
 
-    static generateSquareMesh(x,y,w,h,alignment="center") {
+    static generateSquareMesh(x,y,w,h,alignment="topleft") {
         if (alignment=="center") {
             x-=w/2;
             y-=h/2;
@@ -17,28 +17,6 @@ export default class Geometry {
     }
 
     static generateVector() {
-        class Vector {
-            x=0;
-            y=0;
-
-            /**
-             * 
-             * @param {Number} x 
-             * @param {Number} y 
-             */
-            constructor(x=0,y=0){
-                this.x=x;
-                this.y=y;
-            }
-
-            normalize() {
-                if (this.x==0 && this.y==0) {return;}
-                const m = Math.sqrt(this.x*this.x + this.y*this.y);
-                this.x*=Math.abs(this.x/m);
-                this.y*=Math.abs(this.y/m);
-            }
-        }
-
         return new Vector();
     }
 

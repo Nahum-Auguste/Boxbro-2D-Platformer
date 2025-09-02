@@ -16,8 +16,8 @@ export default class Edge {
     next;
     id="";
     baseColor = "black";
-    checkDownColor = "blue";
-    checkUpColor = "red";
+    checkDownColor = "lime";
+    checkUpColor = "yellow";
     color = this.baseColor;
     opacity = 0.5;
     orientation = undefined;
@@ -140,7 +140,11 @@ export default class Edge {
         return (this.v1.x==this.v2.x);
     }
 
-    draw(lineWidth=1,opacity=this.opacity) {
+    handleDebugMode() {
+        this.debug_draw();
+    }
+
+    debug_draw(lineWidth=1,opacity=this.opacity) {
         Draw.line(this.v1.x,this.v1.y,this.v2.x,this.v2.y,this.color,lineWidth,opacity);
         Draw.text((this.v1.x+this.v2.x)/2,(this.v1.y+this.v2.y)/2,this.id,10);
         Draw.text((this.v1.x+this.v2.x)/2,(this.v1.y+this.v2.y)/2 +10,""+this.orientation,7);

@@ -8,6 +8,11 @@ import Edge from "./edge.js";
 export default class Mesh {
     vertices = [];
     edges = [];
+    #index;
+    #id;
+    static #Meshes = [];
+    static #verticesExists = 0;
+    static #edgesExists = 0;
 
     /**
      * @param {Vertex[]} vertices
@@ -15,7 +20,41 @@ export default class Mesh {
     constructor(vertices) {
         this.vertices = vertices;
         this.constructEdges();
+        Mesh.#Meshes.push(this);
+        this.#index=Mesh.#Meshes.length-1;
+        this.#id="Mesh:"+this.#index;
     }
+
+    getId() {
+        return this.#id;
+    }
+
+    static getGlobalVertexCount() {
+        let c = 0;
+        Mesh.#Meshes.forEach(m=>{
+            c+=m.vertices.length;
+        });
+
+        return c;
+    }
+
+    static getGlobalEdgeCount() {
+        let c = 0;
+        Mesh.#Meshes.forEach(m=>{
+            c+=m.edges.length;
+        });
+
+        return c;
+    }
+
+    static getGlobalMeshCount() {
+        return Mesh.#Meshes.length;
+    }
+
+    destroy() {
+        Mesh.#Meshes = Mesh.#Meshes.filter(m=>m!==this);
+    }
+
 
     constructEdges() {
         this.edges = [];
@@ -47,11 +86,11 @@ export default class Mesh {
         if (top.isVertical()) {top=top.next;}
         for (let i=0; i<this.edges.length; i++) {
             let edge = this.edges[i];
-            if ((edge.isVertical()) && (edge.v1.y<=top.v1.y || edge.v1.y<=top.v2.y) && (edge.v2.y<=top.v2.y || edge.v2.y<=top.v1.y )) {
+            if ((!edge.isVertical()) && (edge.v1.y<=top.v1.y || edge.v1.y<=top.v2.y) && (edge.v2.y<=top.v2.y || edge.v2.y<=top.v1.y )) {
                 top = edge;
             }
         }
-
+        
         if (top.v2.x>top.v1.x) {
             top.orientation = "down";
         }
@@ -151,33 +190,19 @@ export default class Mesh {
         return highest;
     }
 
-    movePositionsUp(amount) {
+    moveVertices(x,y) {
         this.vertices.forEach(v=>{
-            v.y-=amount;
+            v.x+=x;
+            v.y+=y;
         }); 
     }
 
-    movePositionsDown(amount) {
-        this.vertices.forEach(v=>{
-            v.y+=amount;
-        }); 
-    }
-
-    movePositionsLeft(amount) {
-        this.vertices.forEach(v=>{
-            v.x-=amount;
-        }); 
-    }
-
-    movePositionsRight(amount) {
-        this.vertices.forEach(v=>{
-            v.x+=amount;
-        }); 
-    }
-
-    draw() {
-        this.edges.forEach(e=>{e.draw();});
-        this.vertices.forEach(v=>{v.draw();});
+    handleDebugMode() {
+        this.vertices.forEach(v=> {
+            v.handleDebugMode();
+        });
+        this.edges.forEach(e=>{e.handleDebugMode();})
+        this.orientEdges();
     }
 
     printValues() {

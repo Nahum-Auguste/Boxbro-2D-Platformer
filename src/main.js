@@ -1,16 +1,20 @@
 import * as Draw from "./modules/draw.js";
-import {player} from "./modules/player.js";
+import {player} from "./modules/scenes/debug-scene/debug-scene.js";
 import {canvas} from "./modules/draw.js";
-import Mouse from "./modules/mouse.js";
-import Keyboard from "./modules/keyboard.js";
+import Mouse from "./modules/peripherals/mouse.js";
+import Keyboard from "./modules/peripherals/keyboard.js";
 import Geometry from "./modules/geometry/geometry.js";
+import Entity from "./modules/entity/entity.js";
+import Mesh from "./modules/geometry/mesh.js";
+import DebugBlock1 from "./modules/world-object-templates/ground/debug_block1.js";
 
 // Document Variables
 const body = document.getElementsByTagName("body")[0];
 
 // Debugging Variables
 const DEBUG_MODE = true;
-const DEBUG_ARRAY = [];
+let DEBUG_ARRAY = [];
+//const snapSpacing = 8;
 
 //Preparation
 const ctx = canvas.getContext("2d");
@@ -34,13 +38,22 @@ addEventListener("mouseup",handleMouseUp);
 addEventListener("keydown",handleKeyDown);
 addEventListener("keyup",handleKeyUp);
 
+
+//entities
+const entities = [
+    player,
+    new DebugBlock1(20,100)
+];
+
+
+
 // Execution
 const main = ()=> {
     //player.printCollisionValues();
     window.requestAnimationFrame(cycle);
 
     // Debug Section
-    debugMode(DEBUG_MODE);
+    createDebugSection(DEBUG_MODE);
 }
 main();
 
@@ -56,7 +69,11 @@ function cycle() {
 function draw() {
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
-    player.drawCollisionArea();
+    entities.forEach(e=>{
+        e.draw();
+    })
+
+    //player.drawCollisionArea();
 }
 
 function physics() {
@@ -64,36 +81,48 @@ function physics() {
 }
 
 function debug() {
-    //console.log("down:",Keyboard.down,"up:",Keyboard.up);
-    //console.log(isPointWithinRegion(Mouse.x,Mouse.y,0,50,50,0));
-    //console.log(Mouse.held);
-    //Draw.line(0,0,50,50);
-    //console.log(Geometry.isPointBelowLine(Mouse.x,Mouse.y,0,0,50,50,10));
-    //Draw.line(0,50,50,0);
-    //console.log(Geometry.isPointAboveLine(Mouse.x,Mouse.y,0,50,50,0,20));
+    if (!DEBUG_MODE) {return;}
+    const debug = document.getElementById("debug");
+    DEBUG_ARRAY = [
+    "HOLD CTRL TO SHOW GRIP",
+    "Entites: " + Entity.getEntityCount(),
+    "Meshes: " + Mesh.getGlobalMeshCount(),
+    "Edges: " + Mesh.getGlobalEdgeCount(),
+    "Vertices: " + Mesh.getGlobalVertexCount(),
+    ]
     
-    Draw.grid(16,"rgba(50,200,100,.3)");
-    if (player.debugEnabled) {
-        player.handleDebugMode();
+    if (debug!=null) {
+        debug.innerText="";
+        DEBUG_ARRAY.map((e)=>{
+            debug.innerText+=e+"\n"
+        })
     }
+
+    //console.log(Mouse.held);
+    console.log(Keyboard.down);
+    
+    
+    if (Keyboard.down.includes("Control")) {
+        Draw.grid(8,"rgba(181, 70, 255, 0.32)");
+    }
+    entities.forEach(e=>{
+        e.handleDebugMode()
+    })
+    
 }
 
-function debugMode(show=true) {
+function createDebugSection(show=true) {
     if (show) {
         const debug_header = document.createElement("h3");
         debug_header.style.textAlign="center";
         debug_header.style.fontFamily="Arial";
         const debug_element = document.createElement("p");
-        let debug_text = "";
-
-        DEBUG_ARRAY.map((e)=>{debug_text+=e+"\n"})
+        debug_element.id="debug";
+        debug_element.style.textAlign="center";
 
         debug_header.innerText = "debug messages";
-        debug_element.innerText = debug_text;
         body.appendChild(debug_header);
         body.appendChild(debug_element);
-
-        
     }
 }
 

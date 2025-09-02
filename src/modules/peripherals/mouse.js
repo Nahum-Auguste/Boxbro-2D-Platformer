@@ -1,4 +1,6 @@
-import { canvas } from "./draw.js";
+//import { canvas } from "../draw.js";
+import * as Draw from "../draw.js";
+import Keyboard from "./keyboard.js";
 
 
 
@@ -33,6 +35,7 @@ export default {
         }
     },
     moveObject: function (obj) {
+        const snapSpacing = 8;
         if (!this.held.includes(obj)) {this.held.push(obj);}
         let idx = this.held.indexOf(obj);
         if (this.objectDistances.length<this.held.length) {
@@ -44,6 +47,11 @@ export default {
         else {
             obj.x = this.x - this.objectDistances[idx].dx;
             obj.y = this.y - this.objectDistances[idx].dy;
+
+            if (Keyboard.down.includes("Control")) {
+                obj.x-=(obj.x%snapSpacing);
+                obj.y-=(obj.y%snapSpacing);
+            }
         }
     }
 

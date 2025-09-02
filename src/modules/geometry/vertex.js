@@ -1,4 +1,6 @@
 import * as Draw from "../draw.js";
+import Mouse from "../peripherals/mouse.js";
+import * as Utils from "../utils.js";
 
 /**
  * @property {Number} made
@@ -47,7 +49,26 @@ export default class Vertex {
         this.#existsCount--;
     }
 
-    draw(size=3,opacity=this.opacity) {
+    handleDebugMode() {
+        this.debug_draw();
+        const m = Mouse.getPosition();
+        if (Utils.isPointsIntersecting(this.x,this.y,m.x,m.y,5)) {
+            this.color = this.hoverColor;
+            
+            if (Mouse.held.length==0 && Mouse.down) {
+                Mouse.held.push(this);
+            }
+        }
+        else {
+            this.color = this.baseColor;
+        }
+
+        if (Mouse.held.includes(this)) {
+            Mouse.moveObject(this);
+        }
+    }
+
+    debug_draw(size=3,opacity=this.opacity) {
         Draw.circle(this.x,this.y,size,"black",true,opacity);
         Draw.circle(this.x,this.y,size-1,this.color,true,opacity);
         Draw.text(this.x,this.y,this.id,9);

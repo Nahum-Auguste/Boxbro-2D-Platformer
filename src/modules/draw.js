@@ -81,3 +81,7 @@ export function text(x,y,text,size=10,color="black",centered=true) {
     ctx.fillStyle = color;
     ctx.fillText(text, tx, ty);
 }
+
+export function image(image,dx=0,dy=0) {
+    ctx.drawImage(image,dx,dy);
+}

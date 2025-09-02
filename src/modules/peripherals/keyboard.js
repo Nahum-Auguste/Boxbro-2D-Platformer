@@ -7,13 +7,13 @@ export default {
         if(!this.down.includes(down)) {
             this.down.push(down);
         }
-        this.up = this.up.filter(k=> k!==down);
+        this.up = this.up.filter(k=> k.toLowerCase()!==down.toLowerCase());
     },
     setKeyUp: function(up) {
         if(!this.up.includes(up)) {
             this.up.push(up);
         }
-        this.down = this.down.filter(k=> k!==up);
+        this.down = this.down.filter(k=> k.toLowerCase()!==up.toLowerCase());
         if (this.down.length==0) {
             this.up = [];
         }
