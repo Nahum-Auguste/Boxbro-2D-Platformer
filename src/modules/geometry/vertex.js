@@ -1,6 +1,7 @@
 import * as Draw from "../draw.js";
 import Mouse from "../peripherals/mouse.js";
 import * as Utils from "../utils.js";
+import Point from "./point.js";
 
 /**
  * @property {Number} made
@@ -21,11 +22,13 @@ export default class Vertex {
     color = this.baseColor;
     opacity = .8;
 
-    constructor(x,y,name = "") {
+    constructor(x,y) {
         Vertex.#incrementMadeCount();
         this.x = x;
         this.y = y;
-        this.id = name + ":v" + Vertex.#madeCount;
+        //console.log(Vertex.#madeCount);
+        
+        this.id = ":v" + (Vertex.#madeCount-1);
     }
 
     static getMadeCount() {
@@ -76,6 +79,20 @@ export default class Vertex {
 
     handleDeletion() {
         Vertex.#decrementExistsCount();
+    }
+
+    /**
+     * 
+     * @returns {Point}
+     */
+    to_point() {
+        return new Point(this.x,this.y)    
+    }
+
+    distance_to(v) {
+        const dx = this.x-v.x;
+        const dy = this.y-v.y;
+        return Math.sqrt(dx*dx + dy*dy);
     }
 
 }

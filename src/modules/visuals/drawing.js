@@ -18,7 +18,7 @@ export default class Drawing {
      * @param {*} opacity 
      * @param {Drawing[]} layers 
      */
-    constructor(mesh,color="black",opacity=1,layers=[]) {
+    constructor(mesh,color="black",layers=[],opacity=1,) {
         this.mesh = mesh;
         this.color=color;
         this.opacity=opacity;
@@ -41,7 +41,7 @@ export default class Drawing {
         }
     }
 
-    drawStroke(color=this.color,lineWidth=this.lineWidth,opacity=this.opacity) {
+    drawStroke(color=this.strokeColor,lineWidth=this.lineWidth,opacity=this.opacity) {
         this.mesh.edges.forEach(e=> {
             const v1 = e.v1;
             const v2 = e.v2;

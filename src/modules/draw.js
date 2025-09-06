@@ -1,3 +1,6 @@
+import Point from "./geometry/point.js";
+import Vector from "./geometry/vector.js";
+
 export const canvas = document.getElementById("canvas");
 
 /**
@@ -17,13 +20,30 @@ export function grid(spacing = 1, color = "rgba(0,0,0,.2)"){
     }
 }
 
-export function line(x1,y1,x2,y2,color="rgb(0,0,0)",width=1,opactiy=ctx.globalAlpha) {
+export function grid_radial_at(x,y,spacing = 1, size=8, color = "rgba(0,0,0,.2)"){
+    if (!(canvas instanceof HTMLCanvasElement)) {return;}
+
+    let offset = spacing*size;
+    let start_x = x-offset;
+    let start_y = y-offset;
+    let end_x = x+offset;
+    let end_y = y+offset;
+
+    for (let i=0; i<=Math.abs(size*2); i++){
+        let gx = start_x + (spacing * i);
+        let gy = start_y + (spacing * i);
+        line(gx,start_y,gx,end_y,color);
+        line(start_x,gy,end_x,gy,color);
+    }
+}
+
+export function line(x1,y1,x2,y2,color="rgb(0,0,0)",width=1,opacity=ctx.globalAlpha) {
     if (!(ctx instanceof CanvasRenderingContext2D)) {
         return;
     }
 
     const globalOpacity = ctx.globalAlpha;
-    ctx.globalAlpha = opactiy;
+    ctx.globalAlpha = opacity;
     ctx.beginPath();
     ctx.moveTo(x1,y1);
     ctx.lineTo(x2,y2);
@@ -32,6 +52,38 @@ export function line(x1,y1,x2,y2,color="rgb(0,0,0)",width=1,opactiy=ctx.globalAl
     ctx.stroke();
     ctx.globalAlpha = globalOpacity;
 
+}
+
+export function geometric_line(x,y,line,color="rgb(0,0,0)",width=1,opactiy=ctx.globalAlpha) {
+    let x1 = line.x1;
+    let y1 = line.y1;
+    let x2 = line.x2;
+    let y2 = line.y2;
+
+    if (!(ctx instanceof CanvasRenderingContext2D)) {
+        return;
+    }
+
+    const globalOpacity = ctx.globalAlpha;
+    ctx.globalAlpha = opactiy;
+    ctx.beginPath();
+    ctx.moveTo(x+x1,y+y1);
+    ctx.lineTo(x+x2,y+y2);
+    ctx.strokeStyle = color;
+    ctx.lineWidth = width;
+    ctx.stroke();
+    ctx.globalAlpha = globalOpacity;
+
+}
+
+/**
+ * 
+ * @param {*} x 
+ * @param {*} y 
+ * @param {Vector} vector 
+ */
+export function vector(x,y,vector,color="rgb(0,0,0)",width=1,opacity=ctx.globalAlpha) {
+    line(x,y,x+vector.x,y+vector.y,color,width,opacity);
 }
 
 export function area(points,color="rgba(181, 105, 211, 0.24)",opactiy=ctx.globalAlpha) {
@@ -65,6 +117,16 @@ export function circle(x,y,size=3,color="black",filled=true,opactiy=ctx.globalAl
     }
     ctx.globalAlpha = globalOpacity;
     
+}
+
+/**
+ * 
+ * @param {Point} point 
+ * @param {*} size 
+ * @param {*} color 
+ */
+export function point(point,size=4,color="black",filled=true,opacity=ctx.globalAlpha) {
+    circle(point.x,point.y,size,color,filled,opacity);
 }
 
 export function text(x,y,text,size=10,color="black",centered=true) {

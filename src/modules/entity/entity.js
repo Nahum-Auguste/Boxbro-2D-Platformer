@@ -5,11 +5,14 @@ export default class Entity {
     y;
     #index;
     #id;
+    name;
 
     constructor (x,y) {
         Entity.#entities.push(this);
         this.x = x;
         this.y = y;
+        
+        
         this.#index = Entity.#entities.length-1;
         this.#id = "entity:" + this.#index;
     }
@@ -20,6 +23,10 @@ export default class Entity {
 
     getId() {
         return this.#id;
+    }
+
+    static getEntityList() {
+        return Entity.#entities;
     }
 
     destroy() {

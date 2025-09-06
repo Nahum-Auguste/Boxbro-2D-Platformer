@@ -6,6 +6,8 @@ export default class PlayerEntity extends KineticBody{
     spd=0;
     collisionEnabled = true;
     movementKeyset;
+    jumpKey = " ";
+    
 
     /**
      * 
@@ -33,9 +35,11 @@ export default class PlayerEntity extends KineticBody{
             this.movementKeyset[i]=e[i].toLowerCase();
         })
     }
-
+ 
     doPhysics() {
+        super.doPhysics();
         this.handleMovement();
+        this.handleJump();
     }
 
     handleMovement() {
@@ -48,5 +52,11 @@ export default class PlayerEntity extends KineticBody{
         const dy = (down-up)*this.spd;
 
         this.move(dx,dy);
+    }
+
+    handleJump() {
+        if (Keyboard.down.includes(this.jumpKey) && this.isColliding()) {
+            this.move(0,-100); 
+        }
     }
 }

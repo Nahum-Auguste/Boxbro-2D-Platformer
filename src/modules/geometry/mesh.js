@@ -1,11 +1,13 @@
 import Vertex from "./vertex.js";
 import Edge from "./edge.js";
+import Geometry from "./geometry.js";
 
 /**
  * @prop {Vertex[]} this.vertices
  * @prop {Edge[]} this.edges
  */
 export default class Mesh {
+    pointData = []
     vertices = [];
     edges = [];
     #index;
@@ -17,8 +19,9 @@ export default class Mesh {
     /**
      * @param {Vertex[]} vertices
      */
-    constructor(vertices) {
-        this.vertices = vertices;
+    constructor(points) {
+        this.points = points;
+        this.vertices = Geometry.generateVerticies(this.points);
         this.constructEdges();
         Mesh.#Meshes.push(this);
         this.#index=Mesh.#Meshes.length-1;

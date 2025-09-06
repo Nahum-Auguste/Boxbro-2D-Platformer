@@ -6,13 +6,21 @@ import Keyboard from "./keyboard.js";
 
 
 
-export default {
+const Mouse = {
     x:undefined,
     y:undefined,
-    objectDistances:[],
+    heldData:[],
     held:[],
     down:false,
     up:true,
+    HeldDataObject: class {
+        dx;
+        dy;
+        constructor(obj) {
+            this.dx = Mouse.x-obj.x;
+            this.dy = Mouse.y-obj.y;
+        }
+    },
     /**
      * 
      * @param {MouseEvent} event 
@@ -38,15 +46,14 @@ export default {
         const snapSpacing = 8;
         if (!this.held.includes(obj)) {this.held.push(obj);}
         let idx = this.held.indexOf(obj);
-        if (this.objectDistances.length<this.held.length) {
-            this.objectDistances.push({
-                dx:this.x-obj.x,
-                dy:this.y-obj.y
-            });
+        if (this.heldData.length<this.held.length) {
+            this.heldData.push(new this.HeldDataObject(obj));
         }
         else {
-            obj.x = this.x - this.objectDistances[idx].dx;
-            obj.y = this.y - this.objectDistances[idx].dy;
+            const data = this.heldData[idx];
+            
+            obj.x = this.x - data.dx;
+            obj.y = this.y - data.dy;
 
             if (Keyboard.down.includes("Control")) {
                 obj.x-=(obj.x%snapSpacing);
@@ -56,3 +63,5 @@ export default {
     }
 
 }
+
+export default Mouse;

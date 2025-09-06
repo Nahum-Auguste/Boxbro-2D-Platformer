@@ -1,4 +1,5 @@
 import * as Draw from "../draw.js";
+import Line from "./line.js";
 import Vertex from "./vertex.js";
 
 /**
@@ -14,7 +15,7 @@ export default class Edge {
     v2;
     pre;
     next;
-    id="";
+    #id="";
     baseColor = "black";
     checkDownColor = "lime";
     checkUpColor = "yellow";
@@ -30,7 +31,11 @@ export default class Edge {
         Edge.#incrementMadeCount();
         this.v1 = v1;
         this.v2 = v2;
-        this.id = name + ":e" + Edge.#madeCount;
+        this.#id = name + ":e" + Edge.#madeCount;
+    }
+
+    getId() {
+        return this.#id;
     }
 
     static getMadeCount() {
@@ -146,12 +151,16 @@ export default class Edge {
 
     debug_draw(lineWidth=1,opacity=this.opacity) {
         Draw.line(this.v1.x,this.v1.y,this.v2.x,this.v2.y,this.color,lineWidth,opacity);
-        Draw.text((this.v1.x+this.v2.x)/2,(this.v1.y+this.v2.y)/2,this.id,10);
+        Draw.text((this.v1.x+this.v2.x)/2,(this.v1.y+this.v2.y)/2,this.#id,10);
         Draw.text((this.v1.x+this.v2.x)/2,(this.v1.y+this.v2.y)/2 +10,""+this.orientation,7);
-        Draw.text((this.v1.x+this.v2.x)/2,(this.v1.y+this.v2.y)/2 +20,""+Math.round(this.getAngleDegrees())+"\u00B0",7);
+        Draw.text((this.v1.x+this.v2.x)/2,(this.v1.y+this.v2.y)/2 +20,""+this.getAngleDegrees().toFixed(5)+"\u00B0",7);
     }
 
     handleDeletion() {
         Edge.#decrementExistsCount();
+    }
+
+    to_line() {
+        return new Line(this.v1.x,this.v1.y,this.v2.x,this.v2.y);
     }
 }

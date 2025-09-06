@@ -10,6 +10,7 @@ export default class Body extends Entity{
     debugEnabled = false;
     collisionEnabled = true;
     collisionArea;
+    mesh;
 
     /**
      * 
@@ -20,6 +21,7 @@ export default class Body extends Entity{
     constructor(x,y,collisionArea) {
         super(x,y);
         this.collisionArea = collisionArea;
+        this.mesh = this.collisionArea.mesh;
     }
 
     setSprite(sprite) {
@@ -34,6 +36,33 @@ export default class Body extends Entity{
         this.drawings.forEach(d=>{
             d.draw();
         });
+    }
+
+    doPhysics() {
+        this.handleCollision(this.isColliding());
+    }
+
+    isCollidingWith(e) {     
+        return this.collisionArea.isCollidingWith(e);
+    }
+
+    isColliding() {
+        let result = false;
+        const entityList = Entity.getEntityList(); 
+        entityList.forEach(e=>{
+            if (e!=this && e instanceof Body){  
+                
+                if (result = this.isCollidingWith(e)) {   
+                    //console.log(this.getId(),"is colliding with",e.getId());
+                    return result;
+                }
+            }
+        });
+        return result;
+    }
+
+    handleCollision() {
+        
     }
 
     drawCollisionArea() {
@@ -53,6 +82,7 @@ export default class Body extends Entity{
 
     isMouseColliding() {
         if (this.collisionArea) {
+            
             return this.collisionArea.isMouseColliding();
         }
         return false;

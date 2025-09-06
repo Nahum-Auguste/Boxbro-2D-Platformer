@@ -1,5 +1,4 @@
 import * as Draw from "./modules/draw.js";
-import {player} from "./modules/scenes/debug-scene/debug-scene.js";
 import {canvas} from "./modules/draw.js";
 import Mouse from "./modules/peripherals/mouse.js";
 import Keyboard from "./modules/peripherals/keyboard.js";
@@ -7,12 +6,18 @@ import Geometry from "./modules/geometry/geometry.js";
 import Entity from "./modules/entity/entity.js";
 import Mesh from "./modules/geometry/mesh.js";
 import DebugBlock1 from "./modules/world-object-templates/ground/debug_block1.js";
+import sceneManager from "./scene-manager.js";
+import Scene from "./modules/scenes/scene.js";
+import Body from "./modules/entity/body/body.js";
+import Line from "./modules/geometry/line.js";
+import Point from "./modules/geometry/point.js";
 
 // Document Variables
 const body = document.getElementsByTagName("body")[0];
 
 // Debugging Variables
 const DEBUG_MODE = true;
+const DEBUG_VERTICES = !true;
 let DEBUG_ARRAY = [];
 //const snapSpacing = 8;
 
@@ -39,13 +44,6 @@ addEventListener("keydown",handleKeyDown);
 addEventListener("keyup",handleKeyUp);
 
 
-//entities
-const entities = [
-    player,
-    new DebugBlock1(20,100)
-];
-
-
 
 // Execution
 const main = ()=> {
@@ -59,16 +57,22 @@ main();
 
 // Functions
 function cycle() {
-    
-    draw();
-    physics();
-    debug();
+    const scene = sceneManager.current_scene;
+    const entities = scene.entity_list;
+    draw(entities);
+    physics(entities);
+    debug(entities);
     window.requestAnimationFrame(cycle);
 }
 
-function draw() {
+/**
+ * 
+ * @param {Scene} scene 
+ */
+function draw(entities) {
     ctx.clearRect(0,0,canvas.width,canvas.height);
 
+    
     entities.forEach(e=>{
         e.draw();
     })
@@ -76,11 +80,20 @@ function draw() {
     //player.drawCollisionArea();
 }
 
-function physics() {
-    player.doPhysics();
+function physics(entities) {
+    entities.forEach(e=>{
+        if (e instanceof Body) {
+            e.doPhysics();
+        }
+    })
 }
 
-function debug() {
+function debug(entities) {
+    if (DEBUG_VERTICES && ! DEBUG_MODE) {
+        entities.forEach(e=>{
+        e.drawings[e.drawings.length-1].mesh.vertices.forEach(v=>{v.handleDebugMode()});
+    })
+    }
     if (!DEBUG_MODE) {return;}
     const debug = document.getElementById("debug");
     DEBUG_ARRAY = [
@@ -90,6 +103,54 @@ function debug() {
     "Edges: " + Mesh.getGlobalEdgeCount(),
     "Vertices: " + Mesh.getGlobalVertexCount(),
     ]
+
+    //console.log(Keyboard.down);
+    
+    //const line = new Line(30,130,100,0);
+    //Draw.line(30,30,100,150);
+
+    /*
+    Draw.line(30,30,230,230)
+    //Draw.line(230,30,30,230);
+    if (Geometry.isPointAboveLine(Mouse.x,Mouse.y,30,30,230,230)) {
+        console.log("above");
+        
+    }
+    if (Geometry.isPointBelowLine(Mouse.x,Mouse.y,30,30,230,230)) {
+        console.log("below");
+        
+    }
+    */
+    //30,30,230,30 is hori l->r
+    //230,30,30,30 is hori r->l
+    //30,30,230,230 is diag l->r
+    //230,30,30,230 is diag r->l
+    //100,30,100,230 is vert t->b
+    //100,230,100,30 is vert b->t
+
+    /*
+    const line = new Line(30,30,230,30);
+    const p = new Point(Mouse.x,Mouse.y);
+    const pp =  Geometry.point_umbra_of_line(p,line);
+    pp.draw(3,"yellow");
+    //console.log(pp);
+    
+    if (pp) {
+        Geometry.normal_of_point_to_line(p,line).draw(pp.x,pp.y);
+        //console.log(pp);
+        
+        //console.log(Geometry.normal_of_point_to_line(p,line));
+        
+    }
+    */
+
+    //const line = new Line(30,30,230,230);
+    //const p = new Point(Mouse.x,Mouse.y);
+    //const pc =  Geometry.point_cast_of_line(p,line);
+    
+    
+    
+    
     
     if (debug!=null) {
         debug.innerText="";
@@ -98,8 +159,8 @@ function debug() {
         })
     }
 
-    //console.log(Mouse.held);
-    console.log(Keyboard.down);
+    //console.log(Mouse.heldData);
+    //console.log(Keyboard.down);
     
     
     if (Keyboard.down.includes("Control")) {
@@ -107,6 +168,9 @@ function debug() {
     }
     entities.forEach(e=>{
         e.handleDebugMode()
+        
+        //console.log(e.gravityVector);
+        
     })
     
 }
@@ -145,7 +209,7 @@ function handleMouseUp(event) {
 
     //release the goods
     Mouse.held = [];
-    Mouse.objectDistances = [];
+    Mouse.heldData = [];
     Mouse.dx=undefined;
     Mouse.dy=undefined;
 
