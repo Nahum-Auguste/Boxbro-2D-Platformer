@@ -6,6 +6,7 @@ import Utils from "./utils.js";
 const default_point_size = 3;
 
 export default class Draw {
+
     static grid(spacing = 1, color = "rgba(0,0,0,.2)"){
         for (let x=0; x<canvas.width; x+=spacing){
             this.line(x,0,x,canvas.height,color);
@@ -13,11 +14,6 @@ export default class Draw {
         for (let y=0; y<canvas.height; y+=spacing) {
             this.line(0,y,canvas.width,y,color);
         }
-    }
-
-    static rect(x,y,w,h,color="black") {
-        ctx.fillStyle = color;
-        ctx.fillRect(x,y,w,h);
     }
 
     static line(x1,y1,x2,y2,width=1,color="rgb(0,0,0)") {
@@ -113,6 +109,35 @@ export default class Draw {
             this.point(options.x,options.y,Utils.clamp(.25,options.size-2,options.size),options.iris_color);
         }
     }
+
+    static rect(x,y,w,h,color="black") {
+        ctx.fillStyle = color;
+        ctx.fillRect(x,y,w,h);
+    }
+
+    static text(options={}) {
+        if (!("color" in options)) {
+            options.color = "black";
+        }
+        if (!("size" in options)) {
+            options.size = 10;
+        }
+        if (!("font" in options)) {
+            options.font = "Ariel";
+        }
+        ctx.fillStyle = options.color;
+        ctx.font = options.size + "px " + options.font;
+
+        let xoffset = 0;
+
+        if (options.centered) {
+            xoffset = ctx.measureText(options.text).width/2; 
+        }
+
+
+        ctx.fillText(options.text,options.x-xoffset,options.y);
+    }
+
 }
 
 

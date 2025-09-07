@@ -23,13 +23,23 @@ const debug_array = [];
 //100,100,50,50 (diag bot r->l)
 
 
-const p1 = new Geometry.Point(50,50);
-const p2 = new Geometry.Point(100,150);
-const line = new Geometry.Line({p1,p2},50,100,100,50);
-
+//const p1 = new Geometry.Point(50,50);
+//const p2 = new Geometry.Point(100,150);
+//const line = new Geometry.Line({p1,p2},50,100,100,50);
+const x = 175;
+const y = 190;
+const w = 70;
+const h = 70;
+const square = Geometry.generate_rect_edgeset(x,y,w,h);
+//square.print();
 function debug() {
     //console.log(mouse.get_position());
-
+    //square.print();
+    square.draw({vertices:false});
+    square.draw_ids();
+    square.handle_debug_mode();
+    //console.log(mouse.held_obj_data);
+    
     
     
     //Draw.grid(canvas.width/50,"rgba(50, 85, 200, 0.15)");

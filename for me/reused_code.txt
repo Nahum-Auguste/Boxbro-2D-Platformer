@@ -1,9 +1,13 @@
 /*
 static #created_count = 0;
+#idx;
 #id;
+#nickname;
 
 constructor () {
-    this.#id = Point.name + ":" + Point.#created_count; 
+    this.#idx = Point.#created_count;
+    this.#id = Point.name + ":" + this.#idx;
+    this.#nickname = "p" + this.#idx; 
     Point.#created_count++;
 }
 
