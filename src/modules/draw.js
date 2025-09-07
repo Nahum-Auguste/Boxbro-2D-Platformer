@@ -1,28 +1,120 @@
-export const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d"); 
+import canvas from "./canvas.js";
+import {ctx} from "./canvas.js";
+import Utils from "./utils.js";
 
+//global defaults
+const default_point_size = 3;
 
-export function grid(spacing = 1, color = "rgba(0,0,0,.2)"){
-    if (!(canvas instanceof HTMLCanvasElement)) {return;}
-
-    for (let x=0; x<canvas.width; x+=spacing){
-        line(x,0,x,canvas.height,color);
+export default class Draw {
+    static grid(spacing = 1, color = "rgba(0,0,0,.2)"){
+        for (let x=0; x<canvas.width; x+=spacing){
+            this.line(x,0,x,canvas.height,color);
+        }
+        for (let y=0; y<canvas.height; y+=spacing) {
+            this.line(0,y,canvas.width,y,color);
+        }
     }
-    for (let y=0; y<canvas.height; y+=spacing) {
-        line(0,y,canvas.width,y,color);
+
+    static rect(x,y,w,h,color="black") {
+        ctx.fillStyle = color;
+        ctx.fillRect(x,y,w,h);
+    }
+
+    static line(x1,y1,x2,y2,width=1,color="rgb(0,0,0)") {
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = width;
+        ctx.stroke();
+        ctx.closePath();
+    }
+
+    static line_extra(options={}) {
+        if (!("color" in options)) {
+            options.color = "black";
+        }
+        if (!("width" in options)) {
+            options.width = 1;
+        }
+        if (("lineWidth" in options)) {
+            options.width = options.lineWidth;
+        }
+
+        if ("border" in options) {
+            if (!("border_color" in options)) {
+                options.border_color = "black";
+            }
+            
+            this.line(options.x1,options.y1,options.x2,options.y2,Utils.clamp(1,options.width+2.5,Infinity),options.border_color);
+        }
+
+        this.line(options.x1,options.y1,options.x2,options.y2,options.width,options.color);
+    }
+
+    /*
+    static line_at(x,y,x1,y1,x2,y2,width=1,color="rgb(0,0,0)") {
+        const midx = Math.abs(x2-x1)/2;
+        const midy = Math.abs(y2-y1)/2;
+        const dx = midx-x;
+        const dy = midy-y;
+        this.line(x1-midx-dx,y1-midy-dy,x2-midx-dx,y2-midy-dy,width,color);
+    }
+
+    static line_at_extra(x,y,options) {
+        const midx = Math.abs(options.x2-options.x1)/2;
+        const midy = Math.abs(options.y2-options.y1)/2;
+        const dx = midx-x;
+        const dy = midy-y;
+        options.x1-=midx-dx;
+        options.y1-=midy-dy;
+        options.x2-=midx-dx;
+        options.y2-=midy-dy;
+        
+        this.line_extra(options);
+    }   
+    */ 
+
+    static point(x,y,size=default_point_size,color="black") {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        ctx.arc(x,y,size,0,Math.PI*2);
+        ctx.closePath();
+        ctx.fill();
+    }
+
+    static point_extra(options={}) {
+        const dps = default_point_size;
+        if (!("size" in options)) {
+            options.size = dps;
+        }
+
+        //border
+        if ("border" in options) {
+            if ((!"border_color" in options)) {
+                options.border_color = "black";
+            }
+            
+            this.point(options.x,options.y,Utils.clamp(options.size,options.size+1,Infinity),options.border_color);   
+        }
+
+        //main point
+        if (!("color" in options)) {
+            options.color = "black";
+        }
+        this.point(options.x,options.y,options.size,options.color);
+
+        //iris
+        if (!("iris_color" in options)) {
+            options.iris_color = "black";
+        }
+        if ("iris" in options) {
+
+            this.point(options.x,options.y,Utils.clamp(.25,options.size-2,options.size),options.iris_color);
+        }
     }
 }
 
-export function line(x1,y1,x2,y2,color="rgb(0,0,0)") {
-    if (!(ctx instanceof CanvasRenderingContext2D)) {
-        return;
-    }
 
-    ctx.beginPath();
-    ctx.moveTo(x1,y1);
-    ctx.lineTo(x2,y2);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.closePath();
-}
+
+

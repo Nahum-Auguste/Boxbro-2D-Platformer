@@ -1,0 +1,17 @@
+/*
+static #created_count = 0;
+#id;
+
+constructor () {
+    this.#id = Point.name + ":" + Point.#created_count; 
+    Point.#created_count++;
+}
+
+static get_created_count() {
+    return Point.#created_count;
+}
+
+get_id() {
+    return this.#id;
+}
+*/

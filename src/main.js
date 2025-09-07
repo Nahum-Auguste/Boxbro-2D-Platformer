@@ -1,63 +1,76 @@
-import * as Draw from "./modules/draw.js";
-import {canvas} from "./modules/draw.js";
+import Draw from "./modules/draw.js";
+import canvas from "./modules/canvas.js";
+import {ctx} from "./modules/canvas.js";
+import mouse from "./modules/peripherals/mouse.js";
+import keyboard from "./modules/peripherals/keyboard.js";
+import Geometry from "./modules/geometry/geometry.js";
+
 
 // Document Variables
 const body = document.getElementsByTagName("body")[0];
+const sky_color = "rgba(255, 255, 255, 1)";
+
 
 // Debugging Variables
-const SHOW_DEBUG = true;
-const DEBUG_ARRAY = [];
+const debug_mode = true;
+const debug_array = [];
+
+//50,50,100,50 (h l->r)
+//100,50,50,50 (h r->l)
+//50,50,100,100 (diag top l->r)
+//50,100,100,50 (diag bot l->r)
+//100,50,50,100 (diag top r->l)
+//100,100,50,50 (diag bot r->l)
+
+
+const p1 = new Geometry.Point(50,50);
+const p2 = new Geometry.Point(100,150);
+const line = new Geometry.Line({p1,p2},50,100,100,50);
+
+function debug() {
+    //console.log(mouse.get_position());
+
+    
+    
+    //Draw.grid(canvas.width/50,"rgba(50, 85, 200, 0.15)");
+}
 
 // Execution
 const main = ()=> {
-    if (canvas instanceof HTMLCanvasElement) {
-        const ctx = canvas.getContext("2d");
-        ctx.imageSmoothingEnabled = false;
-
-        // Set canvas parameters
-        canvas.style.border = "solid 1px black";
-        const aspectRatio = (16/9);
-        const resolution = 1;
-        const displayWidth = 1000;
-        const displayHeight = displayWidth/aspectRatio;
-        canvas.style.width = displayWidth+"px";
-        canvas.style.height = displayHeight+"px";
-        canvas.width = displayWidth*resolution;
-        canvas.height = displayHeight*resolution;
-
-        // Draw to Canvas
-        draw(ctx);
-
-        // Debug Section
-        debugMode(SHOW_DEBUG);
-    }
+    create_debug_elements();
+    loop();
 }
 main();
 
-// Functions
-function draw(ctx) {
-    if (!(ctx instanceof CanvasRenderingContext2D)) {return;}
+function loop() {
+    draw();
+    debug();
 
-    //NOTE!!! Even though its not shown, the Draw methods require the ctx variable!
-    
-    //Draw.line(0,0,canvas.width,canvas.height);
+    requestAnimationFrame(loop);
 }
 
-function debugMode(show=true) {
-    if (show) {
+// Functions
+function draw() {
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    //Draw the sky (background)
+    Draw.rect(0,0,canvas.width,canvas.height,sky_color);
+
+
+    //Draw.line(0,0,canvas.width,canvas.height);
+
+}
+
+function create_debug_elements() {
+    if (debug_mode) {
         const debug_header = document.createElement("h3");
         debug_header.style.textAlign="center";
         debug_header.style.fontFamily="Arial";
         const debug_element = document.createElement("p");
-        let debug_text = "";
+        debug_element.style.textAlign = "center";
 
-        DEBUG_ARRAY.map((e)=>{debug_text+=e+"\n"})
 
-        debug_header.innerText = "debug messages";
-        debug_element.innerText = debug_text;
+        debug_header.innerText = "Debuging Messages";
         body.appendChild(debug_header);
         body.appendChild(debug_element);
-
-        Draw.grid(16,"rgba(50,200,100,.3)")
     }
 }
