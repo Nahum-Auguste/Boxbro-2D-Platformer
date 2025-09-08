@@ -4,6 +4,7 @@ import {ctx} from "./modules/canvas.js";
 import mouse from "./modules/peripherals/mouse.js";
 import keyboard from "./modules/peripherals/keyboard.js";
 import Geometry from "./modules/geometry/geometry.js";
+import Collision from "./modules/collision/collision.js";
 
 
 // Document Variables
@@ -21,24 +22,26 @@ const debug_array = [];
 //50,100,100,50 (diag bot l->r)
 //100,50,50,100 (diag top r->l)
 //100,100,50,50 (diag bot r->l)
+//50,50,50,100 (v t->b)
+//50,100,50,50 (v b->t)
 
-
-//const p1 = new Geometry.Point(50,50);
-//const p2 = new Geometry.Point(100,150);
-//const line = new Geometry.Line({p1,p2},50,100,100,50);
+const p1 = new Geometry.Point(50,50);
+const p2 = new Geometry.Point(100,150);
+const line = new Geometry.Line({},100,50,50,100);
 const x = 175;
 const y = 190;
 const w = 70;
 const h = 70;
-const square = Geometry.generate_rect_edgeset(x,y,w,h);
+const square = Collision.generate_collision_area(Geometry.generate_rect_mesh(x,y,w,h));
 //square.print();
 function debug() {
     //console.log(mouse.get_position());
     //square.print();
-    square.draw({vertices:false});
-    square.draw_ids();
     square.handle_debug_mode();
     //console.log(mouse.held_obj_data);
+
+    //line.draw();
+    //console.log(Collision.is_point_to_left_of_line(mouse.x,mouse.y,{line,range:40}));
     
     
     

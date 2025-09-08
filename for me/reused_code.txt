@@ -18,4 +18,8 @@ static get_created_count() {
 get_id() {
     return this.#id;
 }
+
+get_nickname() {
+    return this.#nickname;
+}
 */

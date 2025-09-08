@@ -75,7 +75,15 @@ export default class Line {
         return this.#id;
     }
 
-    ordered() {
+    ordered(function_of_x=false) {
+        if (function_of_x) {
+            const y1 = Math.min(this.y1,this.y2);
+            const y2 = Math.max(this.y1,this.y2);
+            const x1 = y1<=y2 ? this.x1 : this.x2;
+            const x2 = y1<=y2 ? this.x2 : this.x1;
+            return new Line({},x1,y1,x2,y2);
+        }
+
         return new Line({p1:this.p1,p2:this.p2,ordered:true});
     }
 

@@ -29,6 +29,54 @@ export default class EdgeSet {
         return this.#id;
     }
 
+    get_height() {
+        return this.get_lowest_vertex().y - this.get_highest_vertex().y;
+    }
+
+    get_width() {
+        return this.get_rightmost_vertex().x - this.get_leftmost_vertex().x;
+    }
+
+    get_leftmost_vertex() {
+        let r = this.vertices[0];
+        this.vertices.forEach(v=>{
+            if (v.x<r.x) {
+                r=v;
+            }
+        })
+        return r;
+    }
+
+    get_rightmost_vertex() {
+        let r = this.vertices[0];
+        this.vertices.forEach(v=>{
+            if (v.x>r.x) {
+                r=v;
+            }
+        })
+        return r;
+    }
+
+    get_highest_vertex() {
+        let r = this.vertices[0];
+        this.vertices.forEach(v=>{
+            if (v.y<r.y) {
+                r=v;
+            }
+        })
+        return r;
+    }
+
+    get_lowest_vertex() {
+        let r = this.vertices[0];
+        this.vertices.forEach(v=>{
+            if (v.y>r.y) {
+                r=v;
+            }
+        })
+        return r;
+    }
+
     construct_edges() {
         for (let i=0; i<this.vertices.length; i++) {
             const v1 = this.vertices[i];
@@ -80,6 +128,8 @@ export default class EdgeSet {
     }
 
     handle_debug_mode() {
+        this.draw();
+        this.draw_ids();
         const vert_range = 7;
         const vert_hover_size = 2.5;
         const vert_hover_color="rgba(255, 144, 236, 1)";
@@ -90,7 +140,7 @@ export default class EdgeSet {
                 v.draw_extra({size:vert_hover_size,color:vert_held_color,border:true});
                 mouse.move_object(v);
             }
-            else if (mouse.held_obj_data.length==0 && Collision.is_position_within_circle(mouse.x,mouse.y,v.x,v.y,vert_range)) {
+            else if (mouse.held_obj_data.length==0 && Collision.is_point_within_circle(mouse.x,mouse.y,v.x,v.y,vert_range)) {
                 v.draw_extra({size:vert_hover_size,color:vert_hover_color,border:true});
                 if (mouse.down) {
                     mouse.hold(v);

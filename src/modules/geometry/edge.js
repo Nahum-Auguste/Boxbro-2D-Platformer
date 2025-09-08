@@ -1,6 +1,7 @@
 import Vertex from "./vertex.js";
 import Draw from "../draw.js";
 import Point from "./point.js";
+import Line from "./line.js";
 
 
 export default class Edge {
@@ -10,7 +11,7 @@ export default class Edge {
     #idx;
     #id;
     #nickname;
-    facing = "down";
+    facing = undefined;
     /**@type {Edge} */
     pre=null;
     /**@type {Edge} */
@@ -75,7 +76,13 @@ export default class Edge {
         else{
             Draw.text({x:this.get_midpoint().x,y:this.get_midpoint().y,text:this.#nickname,centered:true});
         }
+        if (this.facing) {
+            Draw.text({x:this.get_midpoint().x,y:this.get_midpoint().y+10,text:this.facing,centered:true});
+        }
     }
 
+    to_line(ordered=false) {
+        return new Line({ordered:ordered},this.v1.x,this.v1.y,this.v2.x,this.v2.y);
+    }
 
 }

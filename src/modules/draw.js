@@ -7,6 +7,17 @@ const default_point_size = 3;
 
 export default class Draw {
 
+    static area(points,color="black") {
+        ctx.fillStyle = color;
+        ctx.beginPath();
+        for (let i=0; i<points.length; i++) {
+            const p = points[i];
+            ctx.lineTo(p.x,p.y); 
+        }
+        ctx.closePath();
+        ctx.fill();
+    }
+
     static grid(spacing = 1, color = "rgba(0,0,0,.2)"){
         for (let x=0; x<canvas.width; x+=spacing){
             this.line(x,0,x,canvas.height,color);
