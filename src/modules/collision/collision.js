@@ -214,7 +214,7 @@ export default class Collision {
 }
 
 
-class CollisionArea {
+export class CollisionArea {
     /**@type {Geometry.Mesh} */
     mesh;
 
@@ -308,7 +308,7 @@ class CollisionArea {
     handle_debug_mode() {
         let holding = false;
         if (this.is_point_colliding(mouse.x,mouse.y)) {
-            this.draw("rgba(67, 205, 255, 0.14)");
+            this.draw("rgba(255, 127, 67, 0.54)");
             
 
             if (mouse.held_obj_data.length==0 && mouse.down) {
@@ -324,6 +324,7 @@ class CollisionArea {
             }
             
         }
+    
         this.draw();
         
         this.mesh.handle_debug_mode();

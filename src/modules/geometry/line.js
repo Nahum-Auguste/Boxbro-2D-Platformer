@@ -103,7 +103,108 @@ export default class Line {
         this.p1.draw_extra({color:"lime",border:true,size:Line.#point_size});
     }
 
+    /**
+     * 
+     * @param {Line} line 
+     * @returns 
+     */
+    intersects(line,get_casts=false) {
+        const debug = true;
 
+        if (debug) {
+            this.draw();
+            line.draw();
+        }
+
+        const l1 = this.ordered();
+        const l2 = line.ordered();
+
+        
+        const cast1 = l2.point_cast(l1.x1,l1.y1);
+        const cast2 = l2.point_cast(l1.x2,l1.y2);
+        if (cast1) {
+            cast1.draw_extra({color:"yellow",border:true});
+        }
+        if (cast2) {
+            cast2.draw_extra({color:"yellow",border:true});
+        }
+
+        const cast3 = l1.point_cast(l2.x1,l2.y1);
+        const cast4 = l1.point_cast(l2.x2,l2.y2);
+        if (cast3) {
+            cast3.draw_extra({color:"cyan",border:true});
+        }
+        if (cast4) {
+            cast4.draw_extra({color:"cyan",border:true});
+        }
+        
+        let result = false;
+
+        if (!result && cast1 && cast2) {
+            if ((l1.y1<=cast1.y && l1.y2>=cast2.y) || (l1.y1>=cast1.y && l1.y2<=cast2.y)) {
+                //console.log("both self casts");
+                
+                result = true;
+            }
+        }
+        if (!result && cast1 && cast4) {
+            if ((l1.y1<=cast1.y && l2.y2<=cast4.y) || (l1.y1>=cast1.y && l2.y2>=cast4.y)) {
+                //console.log("mixed casts1");
+                
+                result = true;
+            }
+        }
+        if (!result && cast2 && cast3) {
+            if ((l1.y2<=cast2.y && l2.y1<=cast3.y) || (l1.y2>=cast2.y && l2.y1>=cast3.y)) {
+                //console.log("mixed casts2");
+                result = true;
+            }
+        }
+        if (!result && cast3 && cast4) {
+            if ((l2.y1<=cast3.y && l2.y2>=cast4.y) || (l2.y1>=cast3.y && l2.y2<=cast4.y)) {
+                //console.log("both other casts");
+                result = true;
+            }
+        }
+
+        if (result && get_casts) {
+            return {self_casts:[cast1,cast2],other_casts:[cast3,cast3]};
+        }
+
+        return result;
+        
+    }
+
+    point_cast(px,py) {
+        const debug = !true;
+
+        if (debug) {
+            this.draw();
+        }
+
+        const line = this.ordered();
+        const x1 = line.x1;
+        const y1 = line.y1;
+        const x2 = line.x2;
+        const y2 = line.y2;
+        const dx = x2-x1;
+        const dy = y2-y1;
+        const slope = dy/dx;
+        const rx = px-x1;
+        const y = slope*rx + y1;
+
+        const point = new Point(px,y);
+
+        if (px<x1 || px >x2 || y==undefined) {
+            return undefined;
+        }
+
+        if (debug) {
+            point.draw_extra({border:true,color:"pink"})
+        }
+
+        return point;
+    }
 
 
 }

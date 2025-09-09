@@ -18,6 +18,21 @@ export default class Draw {
         ctx.fill();
     }
 
+    static circle(x,y,r=3,color="black",filled=true,lineWidth=1) {
+        ctx.fillStyle=color;
+        ctx.strokeStyle=color;
+        ctx.lineWidth = lineWidth;
+        ctx.beginPath();
+        ctx.arc(x,y,r,0,Math.PI*2);
+        ctx.closePath()
+        if (filled){
+            ctx.fill();
+        }
+        else {
+            ctx.stroke();
+        }
+    }
+
     static grid(spacing = 1, color = "rgba(0,0,0,.2)"){
         for (let x=0; x<canvas.width; x+=spacing){
             this.line(x,0,x,canvas.height,color);
@@ -117,7 +132,7 @@ export default class Draw {
         }
         if ("iris" in options) {
 
-            this.point(options.x,options.y,Utils.clamp(.25,options.size-2,options.size),options.iris_color);
+            this.point(options.x,options.y,Utils.clamp(.25,options.size-1.2,options.size),options.iris_color);
         }
     }
 

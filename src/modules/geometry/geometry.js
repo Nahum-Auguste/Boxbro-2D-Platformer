@@ -30,7 +30,7 @@ export default class Geometry {
         switch(origin_type.toLowerCase()) {
             case "center":
                 xoffset = w/2;
-                yoffset = y/2;
+                yoffset = h/2;
                 break;
 
         }

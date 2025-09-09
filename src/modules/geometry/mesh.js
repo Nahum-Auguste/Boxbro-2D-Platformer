@@ -12,7 +12,7 @@ static #created_count = 0;
         super(vertices);
         this.#idx = Mesh.#created_count;
         this.#id = Mesh.name + ":" + this.#idx;
-        this.#nickname = "p" + this.#idx; 
+        this.#nickname = "m" + this.#idx; 
         Mesh.#created_count++;
     }
 
