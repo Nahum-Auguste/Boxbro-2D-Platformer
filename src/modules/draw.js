@@ -74,29 +74,6 @@ export default class Draw {
         this.line(options.x1,options.y1,options.x2,options.y2,options.width,options.color);
     }
 
-    /*
-    static line_at(x,y,x1,y1,x2,y2,width=1,color="rgb(0,0,0)") {
-        const midx = Math.abs(x2-x1)/2;
-        const midy = Math.abs(y2-y1)/2;
-        const dx = midx-x;
-        const dy = midy-y;
-        this.line(x1-midx-dx,y1-midy-dy,x2-midx-dx,y2-midy-dy,width,color);
-    }
-
-    static line_at_extra(x,y,options) {
-        const midx = Math.abs(options.x2-options.x1)/2;
-        const midy = Math.abs(options.y2-options.y1)/2;
-        const dx = midx-x;
-        const dy = midy-y;
-        options.x1-=midx-dx;
-        options.y1-=midy-dy;
-        options.x2-=midx-dx;
-        options.y2-=midy-dy;
-        
-        this.line_extra(options);
-    }   
-    */ 
-
     static point(x,y,size=default_point_size,color="black") {
         ctx.fillStyle = color;
         ctx.beginPath();

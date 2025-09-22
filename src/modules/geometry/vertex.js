@@ -1,4 +1,5 @@
 import Draw from "../draw.js";
+import Edge from "./edge.js";
 
 export default class Vertex {
     static #created_count = 0;
@@ -8,6 +9,10 @@ export default class Vertex {
 
     x;
     y;
+    /**@type {Edge} */
+    left_edge;
+    /**@type {Edge} */
+    right_edge;
 
     constructor (x,y) {
         this.#idx = Vertex.#created_count;

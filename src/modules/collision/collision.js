@@ -5,6 +5,7 @@ import Point from "../geometry/point.js";
 import Line from "../geometry/line.js";
 import Utils from "../utils.js";
 import mouse from "../peripherals/mouse.js";
+import Body from "../entities/bodies/body.js";
 
 
 export default class Collision {
@@ -239,6 +240,15 @@ export class CollisionArea {
         this.edges = this.mesh.edges;
     }
 
+    //NOTE TO SELF LATER!!! MAKE IT SO WE CAN COPY AN AREA INSTEAD OF MAKING A NEW ONE.
+    copy(area) {
+
+    }
+
+    get_copy() {
+        return new CollisionArea(Geometry.generate_mesh(Geometry.vertices_to_points(this.vertices)));
+    }
+
     draw(color_override){
         this.edges.forEach(e=>{
             //console.log(e);
@@ -305,10 +315,12 @@ export class CollisionArea {
         this.mesh.draw_ids();
     }
 
-    handle_debug_mode() {
+    handle_debug_mode(options={}) 
+    {
+        this.mesh.handle_debug_mode(options);
         let holding = false;
         if (this.is_point_colliding(mouse.x,mouse.y)) {
-            this.draw("rgba(255, 127, 67, 0.54)");
+            //this.draw("rgba(255, 127, 67, 0.54)");
             
 
             if (mouse.held_obj_data.length==0 && mouse.down) {
@@ -325,9 +337,9 @@ export class CollisionArea {
             
         }
     
-        this.draw();
+        this.draw("rgba(255, 230, 230, 0.17)");
         
-        this.mesh.handle_debug_mode();
+        
         
     }
 
@@ -377,4 +389,79 @@ export class CollisionArea {
         return false;
     }
 
+    /**
+     * 
+     * @param {Body} obj 
+     * @returns 
+     */
+    is_colliding_with(obj) {
+        let oarea;
+        if (obj instanceof CollisionArea) {
+            oarea = obj;
+        }
+        else {
+            oarea = obj.collision_area;
+        }
+        for (let i=0; i<this.edges.length;
+             i++) {
+            const e = this.edges[i];
+            const l1 = e.to_line();
+            for (let j=0; j<oarea.edges.length;j++) {
+                const oe = oarea.edges[j];
+                const l2 = oe.to_line();
+                const data = l1.intersects(l2,true);
+                if (data) {
+                    //console.log(data);
+                    
+                    //console.log(e.get_id(),"collides with",oe.get_id());
+                    
+                    return new CollisionData(obj,e,oe,data.self_casters,data.other_casters);
+                }
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 
+     * @param {Edge} e 
+     */
+    is_edge_colliding(e) {
+        const l = e.to_line();
+
+        for (let i=0; i<Body.get_body_list().length; i++) {
+            const b = Body.get_body_list()[i];
+            const carea = b.collision_area;
+            if (carea==this) {continue;};
+
+            for (let j=0; j<carea.edges.length; j++) {
+                const oe = carea.edges[j];
+                const ol = oe.to_line();
+                if (l.intersection_to(ol)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+}
+
+class CollisionData {
+    obj;
+    /**@type {Edge} */
+    self_edge;
+    /**@type {Edge} */
+    other_edge;
+    self_casters;
+    other_casters;
+
+    constructor(obj,se,oe,sc,oc) {
+        this.obj=obj;
+        this.self_edge = se;
+        this.other_edge = oe;
+        this.self_casters = sc;
+        this.other_casters = oc;
+    }
 }

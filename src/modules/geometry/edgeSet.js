@@ -77,6 +77,22 @@ export default class EdgeSet {
         return r;
     }
 
+    get_lowest_edge() {
+        const lv = this.get_lowest_vertex();
+        const pre = lv.left_edge;
+        const next = lv.right_edge;
+        
+        return pre.v1.y>next.v2.y? pre : next;
+    }
+
+    get_midx() {
+        return this.get_rightmost_vertex().x-(this.get_width()/2);
+    }
+
+    get_midy() {
+        return this.get_lowest_vertex().y-(this.get_height()/2);
+    }
+
     construct_edges() {
         for (let i=0; i<this.vertices.length; i++) {
             const v1 = this.vertices[i];
@@ -93,6 +109,9 @@ export default class EdgeSet {
             const next = this.edges[(i+1)%this.edges.length];
             cur.next = next;
             next.pre = cur;
+            cur.v1.right_edge = cur;
+            cur.v2.left_edge = cur;
+            cur.v2.right_edge = cur.next;
         }
     }
 
@@ -104,7 +123,7 @@ export default class EdgeSet {
         }
         if (!("vertices" in options) || options.vertices) {
             this.vertices.forEach(v=>{
-                v.draw_extra({color:this.vertex_color,size:2,border:true});
+                v.draw_extra({color:this.vertex_color,size:options.vertex_size,border:true});
             });
         }
     }
@@ -115,25 +134,36 @@ export default class EdgeSet {
             options.edge_nickname = false;
         }
 
-        if (options.vertices!=false) {
+        if (options.vertices!=false && options.vertex_names!=false) {
             this.vertices.forEach(v=>{
                 v.draw_id({nickname:options.vertex_nickname});
             });
         }
-        if (options.edges!=false) {
+        if (options.edges!=false && options.edge_names!=false) {
             this.edges.forEach(e=>{
                 e.draw_id({nickname:options.edge_nickname});
             });
         }
     }
 
-    handle_debug_mode() {
-        this.draw();
-        this.draw_ids();
-        const vert_range = 7;
-        const vert_hover_size = 2.5;
-        const vert_hover_color="rgba(255, 144, 236, 1)";
-        const vert_held_color="rgba(255, 50, 166, 1)";
+    handle_debug_mode(options={}) {
+        if (!options.vertex_size) {
+            options.vertex_size = 1.5;
+        }
+        if (!options.vertex_hover_color) {
+            options.vertex_hover_color = "rgba(255, 90, 65, 1)";
+        }
+        if (!options.vertex_held_color) {
+            options.vertex_held_color = "rgba(50, 255, 159, 1)";
+        }
+        this.draw(options);
+        this.draw_ids(options);
+        
+        
+        const vert_range = options.vertex_size+3;
+        const vert_hover_size = options.vertex_size+1;
+        const vert_hover_color=options.vertex_hover_color;
+        const vert_held_color=options.vertex_held_color;
         this.vertices.forEach(v=>{
             
             if (mouse.is_holding(v)!=-1) {
@@ -167,5 +197,4 @@ export default class EdgeSet {
         })
     }
 
-    
 }

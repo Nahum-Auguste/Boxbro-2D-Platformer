@@ -1,5 +1,6 @@
 import Point from "./point.js";
 import Draw from "../draw.js";
+import Vector from "./vector.js";
 
 
 export default class Line {
@@ -79,8 +80,8 @@ export default class Line {
         if (function_of_x) {
             const y1 = Math.min(this.y1,this.y2);
             const y2 = Math.max(this.y1,this.y2);
-            const x1 = y1<=y2 ? this.x1 : this.x2;
-            const x2 = y1<=y2 ? this.x2 : this.x1;
+            const x1 = this.y1<=this.y2 ? this.x1 : this.x2;
+            const x2 = this.y1<=this.y2 ? this.x2 : this.x1;
             return new Line({},x1,y1,x2,y2);
         }
 
@@ -109,7 +110,7 @@ export default class Line {
      * @returns 
      */
     intersects(line,get_casts=false) {
-        const debug = true;
+        const debug = !true;
 
         if (debug) {
             this.draw();
@@ -122,22 +123,23 @@ export default class Line {
         
         const cast1 = l2.point_cast(l1.x1,l1.y1);
         const cast2 = l2.point_cast(l1.x2,l1.y2);
-        if (cast1) {
-            cast1.draw_extra({color:"yellow",border:true});
-        }
-        if (cast2) {
-            cast2.draw_extra({color:"yellow",border:true});
-        }
-
         const cast3 = l1.point_cast(l2.x1,l2.y1);
         const cast4 = l1.point_cast(l2.x2,l2.y2);
-        if (cast3) {
-            cast3.draw_extra({color:"cyan",border:true});
+        if (debug) {
+            if (cast1) {
+                cast1.draw_extra({color:"yellow",border:true});
+            }
+            if (cast2) {
+                cast2.draw_extra({color:"yellow",border:true});
+            }
+            if (cast3) {
+                cast3.draw_extra({color:"cyan",border:true});
+            }
+            if (cast4) {
+                cast4.draw_extra({color:"cyan",border:true});
+            }
         }
-        if (cast4) {
-            cast4.draw_extra({color:"cyan",border:true});
-        }
-        
+
         let result = false;
 
         if (!result && cast1 && cast2) {
@@ -168,7 +170,45 @@ export default class Line {
         }
 
         if (result && get_casts) {
-            return {self_casts:[cast1,cast2],other_casts:[cast3,cast3]};
+            const data = {
+                self_casts:[],
+                other_casts:[],
+                casts:[],
+                self_casters:[],
+                other_casters:[],
+                casters:[]
+            }
+
+            if (cast1) {
+                data.self_casts.push(cast1);
+                data.casts.push(cast1);
+                const caster = new Point(l1.x1,l1.y1);
+                data.self_casters.push(caster);
+                data.casters.push(caster);
+            }
+            if (cast2) {
+                data.self_casts.push(cast2);
+                data.casts.push(cast2);
+                const caster = new Point(l1.x2,l1.y2);
+                data.self_casters.push(caster);
+                data.casters.push(caster);
+            }
+            if (cast3) {
+                data.other_casts.push(cast3);
+                data.casts.push(cast3);
+                const caster = new Point(l2.x1,l2.y1);
+                data.other_casters.push(caster);
+                data.casters.push(caster);
+            }
+            if (cast4) {
+                data.other_casts.push(cast4);
+                data.casts.push(cast4);
+                const caster = new Point(l2.x2,l2.y2);
+                data.other_casters.push(caster);
+                data.casters.push(caster);
+            }
+
+            return data;
         }
 
         return result;
@@ -206,5 +246,91 @@ export default class Line {
         return point;
     }
 
+    horizontal_point_cast(px,py) {
+        const debug = !true;
+
+        if (debug) {
+            this.draw();
+        }
+
+        const line = this.ordered(true);
+        const x1 = line.x1;
+        const y1 = line.y1;
+        const x2 = line.x2;
+        const y2 = line.y2;
+        const dx = x2-x1;
+        const dy = y2-y1;
+        const slope = dx/dy;
+        const ry = py-y1;
+        const x = slope*ry + x1;
+
+        const point = new Point(x,py);
+
+        if (py<y1 || py >y2 || x==undefined || isNaN(x)) {
+            return undefined;
+        }
+
+        //console.log(x);
+        
+
+        if (debug) {
+            point.draw_extra({border:true,color:"limr"})
+        }
+
+        return point;
+    }
+
+    intersection_to(line) {
+        //based on Paul Bourke's work written apr 1989
+        let point;
+
+        const l1 = this.ordered();
+        const l2 = line.ordered();
+        
+        const x1 = l1.x1;
+        const y1 = l1.y1;
+        const x2 = l1.x2;
+        const y2 = l1.y2;
+
+        const x3 = l2.x1;
+        const y3 = l2.y1;
+        const x4 = l2.x2;
+        const y4 = l2.y2;
+
+        if ((x1 === x2 && y1 === y2) || (x3 === x4 && y3 === y4)) {
+            return false
+        }
+
+        const denom = ((y4-y3)*(x2-x1)-(x4-x3)*(y2-y1));
+
+        const anumer = ((x4-x3)*(y1-y3)-(y4-y3)*(x1-x3));
+        const bnumer = ((x2-x1)*(y1-y3)-(y2-y1)*(x1-x3));
+
+        const ua = anumer/denom;
+        const ub = bnumer/denom;
+
+        if (denom===0) {
+            return undefined;
+        }
+
+        if (ua < 0 || ua > 1 || ub < 0 || ub > 1) {
+            return false
+        }
+
+        const x = x1 + ua*(x2-x1);
+        const y = y1 + ua*(y2-y1);
+
+        point = new Point(x,y);
+
+        return point;
+    }
+
+    to_vector(ordered=false) {
+        let line = this;
+        if (ordered) {
+            line = line.ordered();
+        }
+        return new Vector(line.x2-line.x1,line.y2-line.y1);
+    }
 
 }

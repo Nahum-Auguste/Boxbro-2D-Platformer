@@ -54,8 +54,8 @@ static #created_count = 0;
         })
     }
 
-    handle_debug_mode(){
-        super.handle_debug_mode();
+    handle_debug_mode(options={}){
+        super.handle_debug_mode(options);
         this.format_edges();
     }
 }

@@ -27,5 +27,6 @@ export default class Point{
         options.y = this.y;
         Draw.point_extra(options);
     }
+
 }
 
