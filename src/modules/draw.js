@@ -35,10 +35,10 @@ export default class Draw {
 
     static grid(spacing = 1, color = "rgba(0,0,0,.2)"){
         for (let x=0; x<canvas.width; x+=spacing){
-            this.line(x,0,x,canvas.height,color);
+            this.line(x,0,x,canvas.height,1,color);
         }
         for (let y=0; y<canvas.height; y+=spacing) {
-            this.line(0,y,canvas.width,y,color);
+            this.line(0,y,canvas.width,y,1,color);
         }
     }
 

@@ -92,5 +92,20 @@ export default class Body extends Entity {
         super.handle_debug_mode();
     }
 
+    physics() {
+        
+    }
+
+    move_to(x,y) {
+        const pastx = this.x;
+        const pasty = this.y;
+        super.move_to(x,y);
+        const vertices = this.collision_area.vertices;
+        vertices.forEach(v=>{
+            v.x = x + (v.x-pastx);
+            v.y = y + (v.y-pasty);
+        });
+    }
+
 
 }

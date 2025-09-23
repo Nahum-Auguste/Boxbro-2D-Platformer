@@ -44,4 +44,9 @@ export default class Entity {
         Draw.circle(this.x,this.y,3,"black",false,2);
         this.draw_id();
     }
+
+    move_to(x,y) {
+        this.x = x;
+        this.y = y;
+    }
 }

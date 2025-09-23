@@ -3,6 +3,19 @@
 const keyboard = {
     down:[],
     up:[],
+    down_has: /**@param {string} key**/(key)=>{
+        for (let i=0; i<keyboard.down.length; i++) {
+            /**
+             * @type {string}
+             */
+            const d = keyboard.down[i];
+            if (d.toLowerCase()===key.toLowerCase()) {
+                return true;
+            }
+        }
+
+        return false;
+    },
 
 }
 export default keyboard;
