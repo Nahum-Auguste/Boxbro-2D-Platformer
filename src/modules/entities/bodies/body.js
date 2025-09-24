@@ -2,6 +2,7 @@ import Collision, { CollisionArea } from "../../collision/collision.js";
 import Geometry from "../../geometry/geometry.js";
 import Vector from "../../geometry/vector.js";
 import mouse from "../../peripherals/mouse.js";
+import Drawing from "../../visuals/drawing.js";
 import Entity from "../entity.js";
 
 export default class Body extends Entity {
@@ -12,6 +13,9 @@ export default class Body extends Entity {
     #id;
     #nickname;
     collision_area;
+
+    /**@type {Drawing} */
+    drawing;
 
     /**
      * 
@@ -41,6 +45,12 @@ export default class Body extends Entity {
 
     get_nickname() {
         return this.#nickname;
+    }
+
+    draw() {
+        if (this.drawing) {
+            this.drawing.draw(this.x,this.y);
+        }
     }
 
     draw_collision_area(){

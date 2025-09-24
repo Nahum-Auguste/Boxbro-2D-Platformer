@@ -8,6 +8,7 @@ const default_point_size = 3;
 export default class Draw {
 
     static area(points,color="black") {
+        
         ctx.fillStyle = color;
         ctx.beginPath();
         for (let i=0; i<points.length; i++) {

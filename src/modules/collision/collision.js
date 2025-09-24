@@ -246,7 +246,7 @@ export class CollisionArea {
     }
 
     get_copy() {
-        return new CollisionArea(Geometry.generate_mesh(Geometry.vertices_to_points(this.vertices)));
+        return new CollisionArea(Geometry.generate_mesh(Geometry.vertices_to_point_array(this.vertices)));
     }
 
     draw(color_override){
@@ -337,7 +337,7 @@ export class CollisionArea {
             
         }
     
-        this.draw("rgba(255, 230, 230, 0.17)");
+        this.draw("rgba(255, 230, 230, 0)");
         
         
         

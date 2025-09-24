@@ -13,25 +13,28 @@ import Body from "./modules/entities/bodies/body.js";
 import DebugBlock1 from "./modules/world-assets/objects/debug-block1.js";
 import DebugBlock2 from "./modules/world-assets/objects/debug-block2.js";
 
-
-// Document Variables
-const body = document.getElementsByTagName("body")[0];
-const sky_color = "rgba(255, 255, 255, 1)";
-
-
-// Debugging Variables
-const debug_mode = true;
-
 // World objects
-const sx = 70;
-const sy = 170;
+let sx = 70;
+let sy = 170;
 const player = new Player(sx,sy);
 new DebugBlock1(30,300);
 new DebugBlock1(200,250);
 new DebugBlock2(470,300);
 
+// Document Variables
+const body = document.getElementsByTagName("body")[0];
+const sky_color = "rgba(183, 230, 255, 1)";
+let view_x = canvas.width/2-sx-150;
+
+
+// Debugging Variables
+const debug_mode = true;
+
+
+
 // Execution
 const main = ()=> {
+    ctx.setTransform(1,0,0,1,view_x,0);
     create_debug_elements();
     loop();
 }
@@ -48,11 +51,15 @@ function loop() {
 
 // Functions
 function draw() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.clearRect(0,0,player.x+canvas.width,canvas.height);
     
     //Draw the sky (background)
-    Draw.rect(0,0,canvas.width,canvas.height,sky_color);
+    Draw.rect(-view_x,0,player.x+canvas.width,canvas.height,sky_color);
 
+    //Draw the world
+    Body.get_body_list().forEach(b=>{
+        b.draw();
+    })
 }
 
 function physics() {
@@ -77,7 +84,7 @@ function debug() {
 
     Body.get_body_list().forEach(b=>{
         const options = {vertex_names:false,edge_names:false};
-        b.handle_debug_mode(options);
+        //b.handle_debug_mode(options);
     })
 
     const debug_array = [
@@ -99,6 +106,7 @@ function debug() {
 
     if (player.collision_area.mesh.get_highest_vertex().y>canvas.height) {
         player.move_to(sx,sy);
+        //ctx.setTransform(1,0,0,1,sx,0);
     }
 
     

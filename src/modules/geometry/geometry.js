@@ -23,11 +23,25 @@ export default class Geometry {
 
     static Vector = Vector;
 
-    static vertices_to_points(verticies) {
+    static vertices_to_point_array(verticies,xoffset=0,yoffset=0) {
         const points = [];
 
         verticies.forEach(v=>{
-            points.push([v.x,v.y]);
+            const x = v.x+xoffset;
+            const y = v.y+yoffset;
+            points.push([x,y]);
+        });
+
+        return points;
+    }
+
+    static vertices_to_points(verticies,xoffset=0,yoffset=0) {
+        const points = [];
+
+        verticies.forEach(v=>{
+            const x = v.x+xoffset;
+            const y = v.y+yoffset;
+            points.push(new Point(x,y));
         });
 
         return points;
