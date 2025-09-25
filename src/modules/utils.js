@@ -9,4 +9,8 @@ export default class Utils {
 
         return val;
     }
+
+    static lerp(a,b,t) {
+        return (a-b)*t;
+    }
 }

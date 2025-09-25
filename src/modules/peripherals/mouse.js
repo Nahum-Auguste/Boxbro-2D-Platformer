@@ -1,3 +1,4 @@
+import camera from "../camera.js";
 import canvas from "../canvas.js";
 
 const mouse = {
@@ -53,9 +54,10 @@ const mouse = {
 export default mouse;
 
 addEventListener("mousemove",e=>{
+    const box = camera.get_box();
     mouse.set_position(
-        e.clientX - canvas.getBoundingClientRect().x, 
-        e.clientY - canvas.getBoundingClientRect().y
+        e.clientX - canvas.getBoundingClientRect().x + box.x, 
+        e.clientY - canvas.getBoundingClientRect().y + box.y
     );
 })
 

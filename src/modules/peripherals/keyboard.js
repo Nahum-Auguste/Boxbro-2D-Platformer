@@ -1,8 +1,10 @@
+import camera from "../camera.js";
 
 
 const keyboard = {
     down:[],
     up:[],
+    pressed:[],
     down_has: /**@param {string} key**/(key)=>{
         for (let i=0; i<keyboard.down.length; i++) {
             /**
@@ -26,6 +28,16 @@ addEventListener("keydown",e=>{
 
     if (!keyboard.down.includes(key)) {
         keyboard.down.push(key);
+    }
+
+    const zoom_factor = .2;
+    if (key.toLowerCase()=="o") {
+        camera.zoom(zoom_factor);
+        camera.zoom_text_life_time = camera.zoom_text_life_timer;
+    }
+    if (key.toLowerCase()=="p") {
+        camera.zoom(-zoom_factor);
+        camera.zoom_text_life_time = camera.zoom_text_life_timer;
     }
 
     keyboard.up = keyboard.up.filter(v=> v.toLowerCase() !== key.toLowerCase());

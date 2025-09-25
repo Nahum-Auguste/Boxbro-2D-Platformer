@@ -63,14 +63,14 @@ export default class Player extends KineticBody{
         if (keyboard.down_has(this.controls.moveleft_key)) {
             this.move({},-this.spd);
             //if (this.collision_area.mesh.get_leftmost_vertex().x+(this.collision_area.mesh.get_width/2)>=canvas.width/2) {
-                ctx.translate(this.spd,0);
+                //ctx.translate(this.spd,0);
             //}
         }
         //moveright
         if (keyboard.down_has(this.controls.moveright_key)) {
             this.move({},this.spd);
             //if (this.collision_area.mesh.get_leftmost_vertex().x+(this.collision_area.mesh.get_width/2)>=canvas.width/2) {
-                ctx.translate(-this.spd,0);
+                //ctx.translate(-this.spd,0);
             //}
         }
 

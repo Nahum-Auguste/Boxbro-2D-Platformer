@@ -12,6 +12,8 @@ import Player from "./modules/world-assets/entities/player.js";
 import Body from "./modules/entities/bodies/body.js";
 import DebugBlock1 from "./modules/world-assets/objects/debug-block1.js";
 import DebugBlock2 from "./modules/world-assets/objects/debug-block2.js";
+import camera from "./modules/camera.js";
+import Utils from "./modules/utils.js";
 
 // World objects
 let sx = 70;
@@ -24,8 +26,6 @@ new DebugBlock2(470,300);
 // Document Variables
 const body = document.getElementsByTagName("body")[0];
 const sky_color = "rgba(183, 230, 255, 1)";
-let view_x = canvas.width/2-sx-150;
-
 
 // Debugging Variables
 const debug_mode = true;
@@ -34,7 +34,7 @@ const debug_mode = true;
 
 // Execution
 const main = ()=> {
-    ctx.setTransform(1,0,0,1,view_x,0);
+    camera.init();
     create_debug_elements();
     loop();
 }
@@ -42,19 +42,78 @@ main();
 
 function loop() {
     
+    
     physics();
     draw();
+    handle_camera();
     debug();
 
     requestAnimationFrame(loop);
 }
 
 // Functions
+function handle_camera() {
+    const box = camera.get_box();
+    const target = player;
+    const cx = player.collision_area.mesh.get_leftmost_vertex().x + player.collision_area.mesh.get_width()/2;
+    const cy = player.collision_area.mesh.get_highest_vertex().y + player.collision_area.mesh.get_height()/2;
+    const upper_bound = box.y+(box.height/2);
+    const lower_bound = box.y+(box.height*.9);
+    let left_bound = box.x + box.width/3;
+    let right_bound = box.x + box.width*.3
+    let follow_const = .05;
+
+    if (mouse.is_holding(player)!=-1) {
+        follow_const=.9;
+        left_bound = box.x + box.width*.1;
+        right_bound = box.x + box.width*.9; 
+        //console.log(cx-left_bound,right_bound-cx);
+    }
+
+    const ushift = Utils.lerp(upper_bound,cy,follow_const);
+    const bshift = Utils.lerp(lower_bound,cy,follow_const);
+    const lshift = Utils.lerp(left_bound,cx,follow_const);
+    const rshift = Utils.lerp(right_bound,cx,follow_const);
+    //console.log(lshift,rshift);
+    //console.log(bshift);
+    
+    
+    //console.log(rshift);
+    
+    //console.log(left_bound,cx,right_bound);
+    
+    if (cx>=right_bound) {
+        camera.move(rshift,0);
+        //console.log("to roght");
+        
+    }
+    else if (cx<=left_bound) {
+        camera.move(lshift,0);
+        //console.log("to left");
+    }
+
+    if (cy>=lower_bound) {
+        camera.move(0,bshift);
+    }
+    else {
+        camera.move(0,ushift);
+    }
+
+    if (camera.zoom_text_life_time>0) {
+        Draw.text({size:20/camera.get_zoom(),text:camera.get_zoom().toFixed(2),x:box.x+(10/ctx.getTransform().a),y:box.y+(20/ctx.getTransform().d),color:`rgba(0,0,0,${camera.zoom_text_life_time/camera.zoom_text_life_timer})`});
+    }
+    camera.zoom_text_life_time = Utils.clamp(0,camera.zoom_text_life_time-1,camera.zoom_text_life_time);
+    //console.log(camera.zoom_text_life_time);
+    
+}
+
 function draw() {
-    ctx.clearRect(0,0,player.x+canvas.width,canvas.height);
+    const box = camera.get_box();
+
+    ctx.clearRect(box.x,box.y,box.width,box.height);
     
     //Draw the sky (background)
-    Draw.rect(-view_x,0,player.x+canvas.width,canvas.height,sky_color);
+    Draw.rect(box.x,box.y,box.width,box.height,sky_color);
 
     //Draw the world
     Body.get_body_list().forEach(b=>{
@@ -70,6 +129,7 @@ function physics() {
 }
 
 function debug() {
+    const box = camera.get_box();
     //50,50,100,50 (h l->r)
     //100,50,50,50 (h r->l)
     //50,50,100,100 (diag top l->r)
@@ -80,6 +140,8 @@ function debug() {
     //50,100,50,50 (v b->t)
 
     //console.log(keyboard.down);
+
+    camera.draw_border();
     
 
     Body.get_body_list().forEach(b=>{
@@ -104,7 +166,8 @@ function debug() {
         debug_element.innerText = debug_text;
     }
 
-    if (player.collision_area.mesh.get_highest_vertex().y>canvas.height) {
+    const room_end_y = 1000;
+    if (player.collision_area.mesh.get_highest_vertex().y>room_end_y) {
         player.move_to(sx,sy);
         //ctx.setTransform(1,0,0,1,sx,0);
     }
