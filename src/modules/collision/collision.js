@@ -402,6 +402,7 @@ export class CollisionArea {
         else {
             oarea = obj.collision_area;
         }
+        if (!oarea) {return false;}
         for (let i=0; i<this.edges.length;
              i++) {
             const e = this.edges[i];

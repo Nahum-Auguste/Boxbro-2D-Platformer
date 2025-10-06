@@ -4,6 +4,7 @@ import Geometry from "../../geometry/geometry.js";
 import keyboard from "../../peripherals/keyboard.js";
 import Drawing from "../../visuals/drawing.js";
 import canvas, { ctx } from "../../canvas.js";
+import Ennea from "../collectibles/ennea.js";
 
 
 class Controls {
@@ -25,6 +26,7 @@ export default class Player extends KineticBody{
     base_spd = 3.5;
     spd = this.base_spd;
     sprint_mult = 1.5;
+    ennea_count = 0;
 
     constructor(x,y,controls=default_controls) {
         const w = 50;
@@ -42,6 +44,7 @@ export default class Player extends KineticBody{
     physics() {
         super.physics();
         this.handle_movement();
+        this.handle_item_collection();
     }
 
     handle_movement() {
@@ -81,6 +84,19 @@ export default class Player extends KineticBody{
 
         
 
+    }
+
+    handle_item_collection() {
+        let target_body = Ennea;
+        let body_list = target_body.get_body_list();
+        body_list.forEach(b=>{
+            if (this.is_colliding_with(b)) {
+                b.collected = true;
+                this.ennea_count++;
+            }
+        });
+
+        
     }
 }
 

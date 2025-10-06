@@ -14,6 +14,8 @@ import DebugBlock1 from "./modules/world-assets/objects/debug-block1.js";
 import DebugBlock2 from "./modules/world-assets/objects/debug-block2.js";
 import camera from "./modules/camera.js";
 import Utils from "./modules/utils.js";
+import Ennea from "./modules/world-assets/collectibles/ennea.js";
+import Sprite from "./modules/visuals/sprite.js";
 
 // World objects
 let sx = 70;
@@ -22,6 +24,13 @@ const player = new Player(sx,sy);
 new DebugBlock1(30,300);
 new DebugBlock1(200,250);
 new DebugBlock2(470,300);
+new Ennea(400,150);
+new Ennea(400,200);
+new Ennea(700,250);
+
+// Sprites for GUI
+const gui_sprite_size = 30;
+const ennea_sprite = new Sprite("../images/sprites/ennea_sprite.png",gui_sprite_size,gui_sprite_size);
 
 // Document Variables
 const body = document.getElementsByTagName("body")[0];
@@ -45,8 +54,10 @@ function loop() {
     
     physics();
     draw();
-    handle_camera();
     debug();
+    gui();
+    handle_camera();
+    
 
     requestAnimationFrame(loop);
 }
@@ -55,15 +66,15 @@ function loop() {
 function handle_camera() {
     const box = camera.get_box();
     const target = player;
-    const cx = player.collision_area.mesh.get_leftmost_vertex().x + player.collision_area.mesh.get_width()/2;
-    const cy = player.collision_area.mesh.get_highest_vertex().y + player.collision_area.mesh.get_height()/2;
+    const cx = target.collision_area.mesh.get_leftmost_vertex().x + target.collision_area.mesh.get_width()/2;
+    const cy = target.collision_area.mesh.get_highest_vertex().y + target.collision_area.mesh.get_height()/2;
     const upper_bound = box.y+(box.height/2);
     const lower_bound = box.y+(box.height*.9);
     let left_bound = box.x + box.width/3;
     let right_bound = box.x + box.width*.3
     let follow_const = .05;
 
-    if (mouse.is_holding(player)!=-1) {
+    if (mouse.is_holding(target)!=-1) {
         follow_const=.9;
         left_bound = box.x + box.width*.1;
         right_bound = box.x + box.width*.9; 
@@ -72,8 +83,8 @@ function handle_camera() {
 
     const ushift = Utils.lerp(upper_bound,cy,follow_const);
     const bshift = Utils.lerp(lower_bound,cy,follow_const);
-    const lshift = Utils.lerp(left_bound,cx,follow_const);
-    const rshift = Utils.lerp(right_bound,cx,follow_const);
+    const lshift = Utils.lerp(left_bound,cx,.1);//follow_const);
+    const rshift = Utils.lerp(right_bound,cx,.1);//follow_const);
     //console.log(lshift,rshift);
     //console.log(bshift);
     
@@ -107,18 +118,34 @@ function handle_camera() {
     
 }
 
+function gui() {
+    const box = camera.get_box();
+    const zoom = camera.get_zoom();
+    const zf = 1/zoom;
+    const ennea_count = player? player.ennea_count : 0;
+    ennea_sprite.draw(box.x+(10)*zf,box.y+(10)*zf);
+    ennea_sprite.scale = zf;
+    Draw.text({size:25/zoom,x:box.x+(gui_sprite_size+10+5)*zf,y:box.y+(gui_sprite_size+2)*zf,text:ennea_count});
+}
+
 function draw() {
     const box = camera.get_box();
+    const draw = !false;
 
     ctx.clearRect(box.x,box.y,box.width,box.height);
     
     //Draw the sky (background)
-    Draw.rect(box.x,box.y,box.width,box.height,sky_color);
+    if (draw) {
+        Draw.rect(box.x,box.y,box.width,box.height,sky_color);
 
-    //Draw the world
-    Body.get_body_list().forEach(b=>{
-        b.draw();
-    })
+        //Draw the world
+        Body.get_body_list().forEach(b=>{
+            b.draw();
+        })
+    }
+    else {
+        Draw.rect(box.x,box.y,box.width,box.height,"white");
+    }
 }
 
 function physics() {

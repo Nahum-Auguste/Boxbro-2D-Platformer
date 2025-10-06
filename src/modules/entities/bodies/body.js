@@ -3,6 +3,7 @@ import Geometry from "../../geometry/geometry.js";
 import Vector from "../../geometry/vector.js";
 import mouse from "../../peripherals/mouse.js";
 import Drawing from "../../visuals/drawing.js";
+import Sprite from "../../visuals/sprite.js";
 import Entity from "../entity.js";
 
 export default class Body extends Entity {
@@ -17,6 +18,9 @@ export default class Body extends Entity {
     /**@type {Drawing} */
     drawing;
 
+    /**@type {Sprite} */
+    sprite;
+
     /**
      * 
      * @param {CollisionArea} collision_area 
@@ -25,10 +29,10 @@ export default class Body extends Entity {
         super(x,y);
         this.#idx = Body.#created_count;
         this.#id = Body.name + ":" + this.#idx;
-        this.#nickname = "B" + this.#idx; 
         Body.#created_count++;
-        this.collision_area = collision_area;
         Body.#list.push(this);
+        this.#nickname = "B" + this.#idx; 
+        this.collision_area = collision_area;
     }
 
     static get_created_count() {
@@ -50,6 +54,9 @@ export default class Body extends Entity {
     draw() {
         if (this.drawing) {
             this.drawing.draw(this.x,this.y);
+        }
+        if (this.sprite) {
+            this.sprite.draw(this.x,this.y);
         }
     }
 
@@ -75,12 +82,13 @@ export default class Body extends Entity {
     
 
     handle_debug_mode(options={
-        vertex_size:1.5,
-        vertex_hover_color:"rgba(255, 90, 65, 1)",
-        vertex_held_color:"rgba(50, 255, 159, 1)"
-    }) 
+            vertex_size:1.5,
+            vertex_hover_color:"rgba(255, 90, 65, 1)",
+            vertex_held_color:"rgba(50, 255, 159, 1)"
+        }) 
     {
         let held = false;
+        if (!this.collision_area) {return;}
         if (this.collision_area.is_point_colliding(mouse.x,mouse.y)) {
             
             if (mouse.held_obj_data.length==0 && mouse.down) {

@@ -13,4 +13,8 @@ export default class Utils {
     static lerp(a,b,t) {
         return (a-b)*t;
     }
+
+    static to_radians(d) {
+        return d * 180 / Math.PI;
+    }
 }

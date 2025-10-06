@@ -7,6 +7,7 @@ import mouse from "../../peripherals/mouse.js";
 import Point from "../../geometry/point.js";
 import Line from "../../geometry/line.js";
 import Utils from "../../utils.js";
+import StaticBody from "./staticBody.js";
 
 
 export default class KineticBody extends Body {
@@ -103,7 +104,7 @@ export default class KineticBody extends Body {
         }
 
         const intersection_data = [];
-        Body.get_body_list().forEach(o=>{
+        StaticBody.get_body_list().forEach(o=>{
             if (o==this) {return;}
 
             o.collision_area.edges.forEach(e=>{
@@ -169,8 +170,8 @@ export default class KineticBody extends Body {
                 }
 
                 let xintersecting = false;
-                for (let j = 0; j<Body.get_body_list().length; j++) {
-                    const o = Body.get_body_list()[j];
+                for (let j = 0; j<StaticBody.get_body_list().length; j++) {
+                    const o = StaticBody.get_body_list()[j];
                     if (o==this) {continue;}
 
                     for (let k=0; k<o.collision_area.edges.length; k++) {
@@ -212,8 +213,8 @@ export default class KineticBody extends Body {
                 }
 
                 let yintersecting = false;
-                for (let j = 0; j<Body.get_body_list().length; j++) {
-                    const o = Body.get_body_list()[j];
+                for (let j = 0; j<StaticBody.get_body_list().length; j++) {
+                    const o = StaticBody.get_body_list()[j];
                     if (o==this) {continue;}
 
                     for (let k=0; k<o.collision_area.edges.length; k++) {
@@ -244,7 +245,7 @@ export default class KineticBody extends Body {
 
         //handle opposing vertex collision
         if (move_vector && (move_vector.x!=0 || move_vector.y!=0)) {
-            Body.get_body_list().forEach(o=>{
+            StaticBody.get_body_list().forEach(o=>{
                 if (o==this) {return;}
 
                 o.collision_area.vertices.forEach(v=>{
@@ -295,8 +296,8 @@ export default class KineticBody extends Body {
             const l = new Line({},e.v1.x,e.v1.y+offset,e.v2.x,e.v2.y+offset);
             //l.draw(1,"green")
             //l.draw_extra({color:"red"});
-            for (let j=0; j<Body.get_body_list().length; j++) {
-                const b = Body.get_body_list()[j];
+            for (let j=0; j<StaticBody.get_body_list().length; j++) {
+                const b = StaticBody.get_body_list()[j];
                 if (b==this) {continue;}
 
                 for (let k=0; k<b.collision_area.edges.length; k++) {
