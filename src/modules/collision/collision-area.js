@@ -35,6 +35,11 @@ export default class CollisionArea {
         this.offset_points = shape.get_offset_points_copy();
     }
 
+    move(dx,dy) {
+        this.x+=dx;
+        this.y+=dy;
+    }
+
     draw() {
         //Point Parameters
         const point_size = 2.5;
@@ -95,7 +100,7 @@ export default class CollisionArea {
                 p.size = p.base_size;
             }
 
-            if (mouse.held==p) {
+            if (mouse.holding(p)) {
                 p.x = mouse.x - this.x;
                 p.y = mouse.y - this.y;
                 p.color = "pink";
@@ -113,7 +118,7 @@ export default class CollisionArea {
         }
         
 
-        if (mouse.held==this) {
+        if (mouse.holding(this)) {
             mouse.move_obj(this);
             //Draw.point(this.x,this.y,point_size,"black",false,line_width-1);
             //Draw.point(this.x,this.y,point_size,origin_color);
@@ -182,4 +187,6 @@ export default class CollisionArea {
 
         return false;
     }
+
+    
 }
