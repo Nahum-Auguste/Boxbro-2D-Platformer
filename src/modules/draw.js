@@ -1,28 +1,64 @@
-export const canvas = document.getElementById("canvas");
-const ctx = canvas.getContext("2d"); 
+import canvas from "./canvas.js";
+import { ctx } from "./canvas.js";
+import Geometry from "./geometry/geometry.js";
 
+export default class Draw {
+    static grid(spacing = 1, color = "rgba(0,0,0,.2)"){
+        if (!(canvas instanceof HTMLCanvasElement)) {return;}
 
-export function grid(spacing = 1, color = "rgba(0,0,0,.2)"){
-    if (!(canvas instanceof HTMLCanvasElement)) {return;}
-
-    for (let x=0; x<canvas.width; x+=spacing){
-        line(x,0,x,canvas.height,color);
+        for (let x=0; x<canvas.width; x+=spacing){
+            Draw.line(x,0,x,canvas.height,color);
+        }
+        for (let y=0; y<canvas.height; y+=spacing) {
+            Draw.line(0,y,canvas.width,y,color);
+        }
     }
-    for (let y=0; y<canvas.height; y+=spacing) {
-        line(0,y,canvas.width,y,color);
+
+    static line(x1,y1,x2,y2,color="rgb(0,0,0)",line_width=1) {
+        ctx.beginPath();
+        ctx.moveTo(x1,y1);
+        ctx.lineTo(x2,y2);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = line_width;
+        ctx.stroke();
+        ctx.closePath();
     }
+
+    static text(text,x,y,size=15,color="black") {
+        ctx.fillStyle = color;
+        ctx.font = size + "px Comic Sans MS";
+        ctx.textAlign="center";
+        ctx.fillText(text,x,y);
+    }
+
+    static point(x,y,size=2,color="black",filled=true,line_width=1) {
+        ctx.beginPath();
+        ctx.fillStyle=color;
+        ctx.strokeStyle=color;
+        ctx.lineWidth = line_width;
+        ctx.arc(x,y,size,0,Math.PI*2);
+        
+        if (filled) {
+            ctx.fill();
+        }
+        else {
+            ctx.stroke();
+        }
+    }
+
+    static area(points=[],color="black") {
+        if (Array.isArray(points[0])) {
+            points = Geometry.generate_points(points);
+        }
+
+        ctx.beginPath();
+        points.forEach(p=>{
+            ctx.moveTo(p.x,p.y);
+        })
+        ctx.closePath();
+        ctx.fillStyle=color;
+        ctx.fill();
+    }
+
 }
 
-export function line(x1,y1,x2,y2,color="rgb(0,0,0)") {
-    if (!(ctx instanceof CanvasRenderingContext2D)) {
-        return;
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(x1,y1);
-    ctx.lineTo(x2,y2);
-    ctx.strokeStyle = color;
-    ctx.lineWidth = 1;
-    ctx.stroke();
-    ctx.closePath();
-}
