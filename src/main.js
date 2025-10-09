@@ -20,8 +20,9 @@ const show_debug = true;
 //Stage parameters
 let sky_color = "rgba(255, 255, 255, 1)";
 const rect = new RectShape(370,150)
-const player = new Player(250,100, new CollisionArea(200,100,new RectShape(50,50)),3);
+const player = new Player(250,100, new CollisionArea(200,100,new RectShape(50,50)),4);
 new StaticBody(250,200,new CollisionArea(100,400,rect));
+new StaticBody(250,200,new CollisionArea(600,350,rect));
 
 // Execution
 const main = ()=> {
@@ -90,11 +91,13 @@ function debug() {
         [
             "Player Data:",
             "spd: " + player.spd,
-            "gravity: " + `(${player.gravity.x},${player.gravity.y.toFixed(2)})`,
+            "\nvelocity:\n" + `(${player.velocity.x.toFixed(2)},${player.velocity.y.toFixed(2)})`,
+            "\ngravity:\n" + `(${player.gravity.x},${player.gravity.y.toFixed(2)})`,
             "airtime: " + player.airtime,
-            "grounded: " + player.check_grounded(),
+            "\njump initial velocity:\n" + `(${player.jump_initial_velocity.x.toFixed(2)},${player.jump_initial_velocity.y.toFixed(2)})`,
+            "\njump velocity:\n" + `(${player.jump_velocity.x.toFixed(2)},${player.jump_velocity.y.toFixed(2)})`,
             "jump time: " + `${player.jump_time}/${player.jump_timer}`,
-            "jump vec: " + `(${player.jump_vector.x},${player.jump_vector.y.toFixed(2)})`,
+            "grounded: " + player.grounded,
         ]
     ];
 
@@ -132,7 +135,7 @@ function create_debug_section() {
         const p = document.createElement("p");
         container.appendChild(p)
         p.id = "d" + i;
-        p.style.width = 170 + "px";
+        p.style.width = 200 + "px";
     }
 
 

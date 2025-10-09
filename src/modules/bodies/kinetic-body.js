@@ -23,11 +23,12 @@ export default class KineticBody extends Body {
     max_gravity = new Vector(0,26);
     /**@type {Vector} */
     gravity = new Vector(0,0);
-    grav_constant = 1;
+    grav_constant = .9;
 
     /**@type {Number} */
     airtime = 0;
     airtime_constant = .15;
+    grounded = false;
 
     constructor(x,y,collision_area) {
         super(x,y,collision_area);
@@ -40,8 +41,7 @@ export default class KineticBody extends Body {
         super.physics();
         this.handle_gravity();
         this.check_grounded();
-
-        this.velocity.clear();
+        this.update_velocity();
     }
 
     check_grounded() {
@@ -87,12 +87,14 @@ export default class KineticBody extends Body {
 
                     if (ip) {
                         //Draw.point(ip.x,ip.y,5);
+                        this.grounded = true;
                         return true;
                     }
                 }
             }
             
         }
+        this.grounded = false;
         return false;
     }
 
@@ -219,5 +221,10 @@ export default class KineticBody extends Body {
         }
 
         this.gravity.y = Utils.clamp(-Math.abs(this.max_gravity.y), Math.pow(this.airtime*this.airtime_constant*this.grav_constant,2),Math.abs(this.max_gravity.y));
+    }
+
+    update_velocity() {
+        this.velocity.clear();
+        this.velocity.add(this.gravity);
     }
 }
