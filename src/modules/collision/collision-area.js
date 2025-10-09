@@ -1,4 +1,5 @@
 import Draw from "../draw.js";
+import Geometry from "../geometry/geometry.js";
 import Point from "../geometry/point.js";
 import Shape from "../geometry/shapes/shape.js";
 import mouse from "../mouse.js";
@@ -40,7 +41,7 @@ export default class CollisionArea {
         this.y+=dy;
     }
 
-    draw() {
+    draw(offx=0,offy=0) {
         //Point Parameters
         const point_size = 2.5;
         const origin_color = "rgba(159, 255, 185, 0.9)";
@@ -49,12 +50,12 @@ export default class CollisionArea {
         
         //Draw Offset Points
         this.offset_points.forEach((p,i,a)=>{
-            const x = this.x + p.x;
-            const y = this.y + p.y;
+            const x = this.x + p.x + offx;
+            const y = this.y + p.y + offy;
 
             const np = a[(i+1)%a.length];
-            const nx = this.x + np.x;
-            const ny = this.y + np.y;
+            const nx = this.x + np.x + offx;
+            const ny = this.y + np.y + offy;
             Draw.line(x,y,nx,ny,"black",.5);
             Draw.point(x,y,p.size,"black",false,line_width);
             Draw.point(x,y,p.size,p.color);
@@ -62,9 +63,9 @@ export default class CollisionArea {
         });
 
         //Draw Origin Point
-        Draw.point(this.x,this.y,point_size,"black",false,line_width-1);
-        Draw.point(this.x,this.y,point_size,origin_color);
-        Draw.text(this.#id,this.x,this.y-5,text_size);
+        Draw.point(this.x+offx,this.y+offy,point_size,"black",false,line_width-1);
+        Draw.point(this.x+offx,this.y+offy,point_size,origin_color);
+        Draw.text(this.#id,this.x+offx,this.y-5+offy,text_size);
     }
 
     get_id() {
@@ -133,7 +134,7 @@ export default class CollisionArea {
         return CollisionArea.#entity_list;
     }
 
-    is_point_colliding(x,y) {
+    is_point_colliding(x,y,offx=0,offy=0) {
         let above = false;
         let below = false;
         let left = false;
@@ -143,25 +144,14 @@ export default class CollisionArea {
             const p = this.offset_points[i];
             const np = this.offset_points[(i+1)%this.offset_points.length];
 
-            const x1 = this.x+p.x;
-            const y1 = this.y+p.y;
-            const x2 = this.x+np.x;
-            const y2 = this.y+np.y;
+            const x1 = this.x+p.x+offx;
+            const y1 = this.y+p.y+offy;
+            const x2 = this.x+np.x+offx;
+            const y2 = this.y+np.y+offy;
 
             let check;
 
-            if (np.x>p.x) {
-                check = "below";
-            }
-            if (np.x<p.x) {
-                check = "above";
-            }
-            if (p.y<=np.y && p.x==np.x) {
-                check = "left";
-            }
-            if (p.y>=np.y && p.x==np.x) {
-                check = "right";
-            }
+            check = Geometry.get_line_orientation(x1,y1,x2,y2);
 
             //Draw.text(p.get_id()+"->"+np.get_id()+check,(np.x-p.x)/2+this.x+p.x,(np.y-p.y)/2+this.y+p.y,9);
 
@@ -187,6 +177,28 @@ export default class CollisionArea {
 
         return false;
     }
+
+    get_lowest_point(neighbors=false) {
+        let lp = this.offset_points[0];
+        let pre;
+        let next;
+
+
+        this.offset_points.forEach((p,i,ops)=>{
+            if (p.y>lp.y) {lp = p; next = ops[(i+1)%ops.length]; pre = ops[(i-1)%ops.length];}
+        })
+
+        if (neighbors) {
+            return {
+                lp:lp,
+                pre:pre,
+                next:next,
+            };
+        }
+
+        return lp;
+    }
+
 
     
 }

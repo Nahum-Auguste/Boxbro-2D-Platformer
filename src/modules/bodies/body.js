@@ -30,12 +30,6 @@ export default class Body {
 
     }
 
-    move(dx,dy) {
-        this.x+=dx;
-        this.y+=dy;
-        this.collision_area.move(dx,dy);
-    }
-
     handle_debug_mode() {
         if (this.collision_area) {
             this.collision_area.handle_debug_mode();

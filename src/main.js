@@ -19,9 +19,9 @@ const show_debug = true;
 
 //Stage parameters
 let sky_color = "rgba(255, 255, 255, 1)";
-const rect = new RectShape(170,100)
-new Player(250,100, new CollisionArea(200,100,new RectShape(50,50)),5);
-new StaticBody(250,200,new CollisionArea(300,200,rect));
+const rect = new RectShape(370,150)
+const player = new Player(250,100, new CollisionArea(200,100,new RectShape(50,50)),3);
+new StaticBody(250,200,new CollisionArea(100,400,rect));
 
 // Execution
 const main = ()=> {
@@ -86,6 +86,15 @@ function debug() {
         [
             "Keyboard Data:",
             "Down: " + keyboard.down,
+        ],
+        [
+            "Player Data:",
+            "spd: " + player.spd,
+            "gravity: " + `(${player.gravity.x},${player.gravity.y.toFixed(2)})`,
+            "airtime: " + player.airtime,
+            "grounded: " + player.check_grounded(),
+            "jump time: " + `${player.jump_time}/${player.jump_timer}`,
+            "jump vec: " + `(${player.jump_vector.x},${player.jump_vector.y.toFixed(2)})`,
         ]
     ];
 
