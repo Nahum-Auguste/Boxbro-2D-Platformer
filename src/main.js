@@ -8,8 +8,9 @@ import Collision from "./modules/collision/collision.js";
 import StaticBody from "./modules/bodies/static-body.js";
 import Body from "./modules/bodies/body.js";
 import KineticBody from "./modules/bodies/kinetic-body.js";
-import Player from "./modules/world-entities/player.js";
+import player from "./modules/world-entities/player.js";
 import keyboard from "./modules/keyboard.js";
+import camera from "./modules/camera.js";
 
 // Document Variables
 const body = document.getElementsByTagName("body")[0];
@@ -20,30 +21,35 @@ const show_debug = true;
 //Stage parameters
 let sky_color = "rgba(255, 255, 255, 1)";
 const rect = new RectShape(370,150)
-const player = new Player(250,100, new CollisionArea(200,100,new RectShape(50,50)),4);
 new StaticBody(250,200,new CollisionArea(100,400,rect));
 new StaticBody(250,200,new CollisionArea(600,350,rect));
+
 
 // Execution
 const main = ()=> {
     create_debug_section();
     loop();
+    //camera.move(0,0);
 }
 main();
 
 function loop() {
-    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const view = camera.get_view();
+    ctx.clearRect(view.x,view.y,view.width,view.height);
     draw();
     physics();
     debug();
+    camera.handle_camera();
+    mouse.handle_mouse();
+
     requestAnimationFrame(loop);
 }
 
 // Functions
 function draw() {
-    
+    const view = camera.get_view();
     ctx.fillStyle = sky_color;
-    ctx.fillRect(0,0,canvas.width,canvas.height);
+    ctx.fillRect(view.x,view.y,view.width,view.height);
 }
 
 function physics() {
@@ -62,20 +68,33 @@ function debug() {
     Body.get_entity_list().forEach(b=>{
         b.handle_debug_mode();
     });
-
-    CollisionArea.get_entity_list().forEach(a=>{
-        //a.handle_debug_mode();
-        //console.log(a.is_point_colliding(mouse.x,mouse.y));
-    })
+    
+    const view = camera.get_view();
+    const zoom_out = keyboard.is_pressed("o");
+    const zoom_in = keyboard.is_pressed("p");
+    const zoom_const = .10;
+    
+    if (zoom_out) {
+        camera.inc_zoom(-zoom_const);
+    }
+    if (zoom_in) {
+        camera.inc_zoom(zoom_const);
+    }
+    //camera.move(3,-1);
+    //console.log(camera.zoom);
+    //console.log(ctx.getTransform());
+    
 
     const debugmat = [
         [
             "Mouse Data:",
             mouse.x?`(${mouse.x.toFixed(2)},${mouse.y.toFixed(2)})`:"(undefined,undefined)",
+            mouse.last_x?`(${mouse.last_x.toFixed(2)},${mouse.last_y.toFixed(2)})`:"(undefined,undefined)",
             "Up: " + mouse.up + ", Down: " + mouse.down,
             mouse.hovered? "hovered: " + mouse.hovered.get_id() : "hovered: null",
             "held: " + mouse.held.length,
             "held data: " + mouse.held_data_arr.length,
+            "moving: " + mouse.moving,
         ],
         [
             "Body Data:",
@@ -87,18 +106,30 @@ function debug() {
         [
             "Keyboard Data:",
             "Down: " + keyboard.down,
+            //"Up: " + keyboard.up,
+            "Pressed: " + keyboard.pressed,
         ],
         [
             "Player Data:",
+            `(${player.x.toFixed(2)},${player.y.toFixed(2)})`,
             "spd: " + player.spd,
             "\nvelocity:\n" + `(${player.velocity.x.toFixed(2)},${player.velocity.y.toFixed(2)})`,
             "\ngravity:\n" + `(${player.gravity.x},${player.gravity.y.toFixed(2)})`,
             "airtime: " + player.airtime,
             "\njump initial velocity:\n" + `(${player.jump_initial_velocity.x.toFixed(2)},${player.jump_initial_velocity.y.toFixed(2)})`,
             "\njump velocity:\n" + `(${player.jump_velocity.x.toFixed(2)},${player.jump_velocity.y.toFixed(2)})`,
-            "jump time: " + `${player.jump_time}/${player.jump_timer}`,
+            //"jump time: " + `${player.jump_time}/${player.jump_timer}`,
             "grounded: " + player.grounded,
-        ]
+            "jump held: " + player.jump_held,
+        ],
+        [
+            "Camera Data:",
+            `(${camera.x.toFixed(0)},${camera.y.toFixed(0)},${camera.x2.toFixed(0)},${camera.y2.toFixed(0)})`,
+            camera.width.toFixed(0) + " x " + camera.height.toFixed(0),
+            "zoom: " + camera.zoom.toFixed(2),
+            `(${view.x.toFixed(0)},${view.y.toFixed(0)},${view.x2.toFixed(0)},${view.y2.toFixed(0)})`,
+            view.width.toFixed(0) + " x " + view.height.toFixed(0),
+        ],
     ];
 
     for (let i=0; i<5; i++) {

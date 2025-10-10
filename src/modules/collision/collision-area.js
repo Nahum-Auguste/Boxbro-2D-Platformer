@@ -199,6 +199,87 @@ export default class CollisionArea {
         return lp;
     }
 
+    get_highest_point(neighbors=false) {
+        let hp = this.offset_points[0];
+        let pre;
+        let next;
+
+
+        this.offset_points.forEach((p,i,ops)=>{
+            if (p.y<hp.y) {hp = p; next = ops[(i+1)%ops.length]; pre = ops[(i-1)%ops.length];}
+        })
+
+        if (neighbors) {
+            return {
+                hp:hp,
+                pre:pre,
+                next:next,
+            };
+        }
+
+        return hp;
+    }
+
+    get_leftmost_point(neighbors=false) {
+        let lp = this.offset_points[0];
+        let pre;
+        let next;
+
+
+        this.offset_points.forEach((p,i,ops)=>{
+            if (p.x<lp.x) {lp = p; next = ops[(i+1)%ops.length]; pre = ops[(i-1)%ops.length];}
+        })
+
+        if (neighbors) {
+            return {
+                lp:lp,
+                pre:pre,
+                next:next,
+            };
+        }
+
+        return lp;
+    }
+
+    get_rightmost_point(neighbors=false) {
+        let rp = this.offset_points[0];
+        let pre;
+        let next;
+
+
+        this.offset_points.forEach((p,i,ops)=>{
+            if (p.x>rp.x) {rp = p; next = ops[(i+1)%ops.length]; pre = ops[(i-1)%ops.length];}
+        })
+
+        if (neighbors) {
+            return {
+                rp:rp,
+                pre:pre,
+                next:next,
+            };
+        }
+
+        return rp;
+    }
+
+    get_width() {
+        return this.get_rightmost_point().x-this.get_leftmost_point().x;
+    }
+
+    get_height() {
+        return this.get_lowest_point().y-this.get_highest_point().y;
+    }
+ 
+    get_midpoint(with_offset=true) {
+        let ox = 0;
+        let oy = 0;
+        if (with_offset) {
+            ox = this.x;
+            oy = this.y;
+        }
+        return new Point(this.get_width()/2+ox,this.get_height()/2+oy);
+    }
+
 
     
 }

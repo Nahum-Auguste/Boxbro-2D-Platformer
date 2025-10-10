@@ -1,4 +1,4 @@
-import canvas from "./canvas.js";
+import canvas, { ctx } from "./canvas.js";
 
 const mouse = {
     /**@type {Number} */
@@ -10,6 +10,10 @@ const mouse = {
     held_data_arr:[],
     down:false,
     up:true,
+    /**@type {Number} */
+    last_x:undefined,
+    /**@type {Number} */
+    last_y:undefined,
     holding:(obj,get_index=false)=>{
         if (!get_index) {
             return mouse.held.includes(obj);
@@ -34,6 +38,10 @@ const mouse = {
         obj.x = mouse.x-dx;
         obj.y = mouse.y-dy;
     },
+    moving:false,
+    handle_mouse:()=>{
+        mouse.moving = false;
+    },
 }
 export default mouse;
 
@@ -41,13 +49,16 @@ addEventListener("mousemove",(e)=>{
     const canvas_box = canvas.getBoundingClientRect();
     const offx = -10;
     const offy = -10;
-    mouse.x = e.clientX - canvas_box.x + offx;
-    mouse.y = e.clientY - canvas_box.y + offy;
+    mouse.x = (e.clientX - canvas_box.x + offx - ctx.getTransform().e)/ctx.getTransform().a;
+    mouse.y = (e.clientY - canvas_box.y + offy - ctx.getTransform().f)/ctx.getTransform().d;
+    mouse.last_x = mouse.x;
+    mouse.last_y = mouse.y;
     
     if (mouse.down && mouse.held.length==0 && mouse.hovered) {
         mouse.held.push(mouse.hovered);
         mouse.held_data_arr.push(new HeldData(mouse.hovered));
     }
+    mouse.moving = true;
 });
 
 addEventListener("mousedown",e=>{
@@ -58,6 +69,7 @@ addEventListener("mousedown",e=>{
         mouse.held.push(mouse.hovered);
         mouse.held_data_arr.push(new HeldData(mouse.hovered));
     }
+    
 })
 
 addEventListener("mouseup",e=>{
