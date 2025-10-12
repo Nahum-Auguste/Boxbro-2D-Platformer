@@ -1,7 +1,7 @@
 import canvas from "../../canvas.js";
 import CollisionArea from "../../collision/collision-area.js";
 import RectShape from "../../geometry/shapes/rect-shape.js";
-import mouse from "../../mouse.js";
+import mouse, { SavedState } from "../../mouse.js";
 import Drawing from "../drawing.js";
 import GuiButton from "./gui-button.js";
 import Gui from "./gui.js";
@@ -25,10 +25,23 @@ export default class MenuBar extends Gui{
         let clicked_drawing = new Drawing(shape,"rgba(134, 134, 134, 0.76)");
 
         let ca = new CollisionArea(bx,by,shape)
-        const add_button = new GuiButton(bx,by,ca,drawing,"add block");
-        add_button.hovered_drawing = hovered_drawing;
-        add_button.clicked_drawing = clicked_drawing;
-        this.buttons.push(add_button);
+        const undo_button = new GuiButton(bx,by,ca,drawing,"undo");
+        undo_button.hovered_drawing = hovered_drawing;
+        undo_button.clicked_drawing = clicked_drawing;
+        this.buttons.push(undo_button);
+        undo_button.on_click = ()=> {
+            SavedState.undo();
+        }
+
+        bx += margin_right;
+        ca = new CollisionArea(bx,by,shape)
+        const redo_button = new GuiButton(bx,by,ca,drawing,"redo");
+        redo_button.hovered_drawing = hovered_drawing;
+        redo_button.clicked_drawing = clicked_drawing;
+        this.buttons.push(redo_button);
+        redo_button.on_click = ()=> {
+            SavedState.redo();
+        }
 
         bx += margin_right;
         ca = new CollisionArea(bx,by,shape)
@@ -36,7 +49,12 @@ export default class MenuBar extends Gui{
         delete_button.hovered_drawing = hovered_drawing;
         delete_button.clicked_drawing = clicked_drawing;
         delete_button.on_click = ()=> {
-            mouse.mode = "delete";
+            if (mouse.mode!="delete") {
+                mouse.mode = "delete";
+            }
+            else {
+                mouse.mode = undefined;
+            }
         }
         this.buttons.push(delete_button);
 

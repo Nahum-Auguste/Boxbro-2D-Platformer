@@ -98,6 +98,25 @@ export default class CollisionArea {
         return this.#id;
     }
 
+    draw_on_hover() {
+        let point_held = false;
+        for (let i=0; i<this.offset_points.length; i++) {
+            const p = this.offset_points[i];
+            if (mouse.holding(p)) {
+                point_held=true;
+                break;
+            }
+        }
+        if (!point_held) {
+            this.draw_edges(0,0,"cyan",true,"cyan");
+        }
+    }
+
+    draw_on_hold() {
+        this.draw_edges(0,0,"blue",true,"cyan");
+        this.draw_edges(0,0,"cyan",true,"cyan");
+    }
+
     handle_debug_mode() {
         this.draw();
         const detection_radius = 4;
@@ -136,6 +155,7 @@ export default class CollisionArea {
             }
         })
 
+        /*
         if (!mouse.hovered && this.is_point_colliding(mouse.x,mouse.y)) {
             mouse.hovered=this;
         }
@@ -145,26 +165,16 @@ export default class CollisionArea {
         }
         
         if (mouse.hovered==this && !mouse.holding(this)) {
-            let point_held = false;
-            for (let i=0; i<this.offset_points.length; i++) {
-                const p = this.offset_points[i];
-                if (mouse.holding(p)) {
-                    point_held=true;
-                    break;
-                }
-            }
-            if (!point_held) {
-                this.draw_edges(0,0,"cyan",true,"cyan");
-            }
+            this.draw_on_hover();
         }
 
         if (mouse.holding(this)) {
             mouse.move_obj(this);
-            this.draw_edges(0,0,"blue",true,"cyan");
-            this.draw_edges(0,0,"cyan",true,"cyan");
+            this.draw_on_hold();
             //Draw.point(this.x,this.y,point_size,"black",false,line_width-1);
             //Draw.point(this.x,this.y,point_size,origin_color);
         }
+        */
         
     }
 

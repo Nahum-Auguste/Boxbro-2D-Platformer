@@ -3,6 +3,7 @@ import Body from "./bodies/body.js";
 import KineticBody from "./bodies/kinetic-body.js";
 import StaticBody from "./bodies/static-body.js";
 import canvas, { ctx } from "./canvas.js";
+import Utils from "./utils.js";
 
 const mouse = {
     /**@type {Number} */
@@ -14,9 +15,10 @@ const mouse = {
     grabbing:false,
     held:[],
     held_data_arr:[],
-    clicked_lifetimer:9,
+    clicked_lifetimer:2,
     clicked_lifetime:0,
     mode:undefined,
+    default_mode:"move",
     down:false,
     up:true,
     /**@type {Number} */
@@ -34,9 +36,10 @@ const mouse = {
     move_obj:(obj)=>{
         mouse.grabbing = true;
         let idx = mouse.holding(obj,true);
+        const hd = new HeldData(obj);
         if (idx==-1) {
             mouse.held.push(obj);
-            mouse.held_data_arr.push(new HeldData(obj));
+            mouse.held_data_arr.push(hd);
             idx = mouse.held.length-1;
         }
 
@@ -81,14 +84,17 @@ function handle_mouse() {
             break;
 
         default:
+            mouse.mode = mouse.default_mode;
             break;
     }
 
     if (mouse.mode=="delete" && mouse.held.length>0) {
-        console.log(mouse.held);
+        let data = [];
         
         mouse.held.forEach(h=>{
             let type;
+            let deleted = false;
+            let held_data = new HeldData(h);
 
             type = Body;
             if (h instanceof type) {
@@ -96,6 +102,7 @@ function handle_mouse() {
                 if (idx>=0) {
                     type.get_entity_list().splice(idx,1);
                     mouse.hovered = null;
+                    deleted = true;
                 }
             }
             type = StaticBody;
@@ -104,6 +111,7 @@ function handle_mouse() {
                 if (idx>=0) {
                     type.get_entity_list().splice(idx,1);
                     mouse.hovered = null;
+                    deleted = true;
                 }
             }
             type = KineticBody;
@@ -112,9 +120,20 @@ function handle_mouse() {
                 if (idx>=0) {
                     type.get_entity_list().splice(idx,1);
                     mouse.hovered = null;
+                    deleted = true;
                 }
             }
+
+            //save the state
+            if (deleted) {
+                data.push(held_data);
+            }
         });
+
+        if (data.length>0) {
+            new SavedState(data,"delete")
+            //console.log(SavedState.get_buffer());
+        }
     }
 
 
@@ -152,22 +171,219 @@ addEventListener("mousedown",e=>{
         mouse.clicked=mouse.hovered;
     }
 
+    if (mouse.held.length>0 && mouse.mode=="move") {
+        let data = [];
+
+        mouse.held.forEach(h=>{
+            if (!(h instanceof Body)) {return;}
+            //console.log(h);
+            
+            const hd = new HeldData(h);
+            
+            data.push(hd);
+        })
+
+        //console.log("data",data);
+        
+        if (data.length>0) {
+            new SavedState(data,"move");
+        }
+    }
+
 })
 
 addEventListener("mouseup",e=>{
+    if (mouse.held.length>0 && mouse.mode=="move") {
+        let data = [];
+
+        const pss = SavedState.get_buffer().at(-1);
+        //console.log(pss);
+
+        //console.log(pss.held_data.length,mouse.held.length);
+        //console.log(pss.held_data);
+        //console.log(mouse.held);
+        
+        let persist = false;
+        if (pss) {
+            mouse.held.forEach((h,i)=>{
+                if (persist) {return;}
+                const phd = pss.held_data[i];
+                const hd = new HeldData(h);
+                const ox = phd.x;
+                const oy = phd.y;
+                const nx = hd.x;
+                const ny = hd.y;
+
+                if (ox!=nx || oy!=ny) {
+                    persist = true;
+                }
+            })
+
+            if (!persist) {
+                SavedState.get_buffer().pop();
+                SavedState.inc_buffer(-1);
+            }
+
+            //console.log(SavedState.get_buffer());
+        }
+    }
+
     mouse.up = true;
     mouse.down = false;
     mouse.held = [];
     mouse.held_data_arr = [];
 })
 
-class HeldData {
+export class HeldData {
     obj;
+    x;
+    y;
+    new_x;
+    new_y;
     dx;
     dy;
+    body_idx;
+    static_body_idx;
+    kinetic_body_idx;
+    /**@param {Body} obj */
     constructor(obj) {
         this.obj = obj;
+        this.x = obj.x;
+        this.y = obj.y;
         this.dx = mouse.x-obj.x,
         this.dy = mouse.y-obj.y
+        if (obj instanceof Body) {
+            this.body_idx = Body.get_entity_list().indexOf(obj);
+        }
+        if (obj instanceof StaticBody) {
+            this.static_body_idx = StaticBody.get_entity_list().indexOf(obj);
+        }
+        if (obj instanceof KineticBody) {
+            this.kinetic_body_idx = KineticBody.get_entity_list().indexOf(obj);
+        }
+    }
+}
+
+export class SavedState {
+    /**@type {SavedState[]} */
+    static #buffer = [];
+
+    static #buffer_idx = 0;
+
+    /**@type {HeldData[]} */
+    held_data = []
+
+    type;
+
+    /**
+     * 
+     * @param {HeldData[]} held_datas 
+     * @param {*} type 
+     */
+    constructor(held_datas,type) {
+        this.type = type;
+
+        if (!Array.isArray(held_datas)) {
+            this.held_data = [held_datas];
+        }
+        else {
+            this.held_data = held_datas;
+        }
+        
+        SavedState.#buffer.splice(SavedState.#buffer_idx,0,this);
+        SavedState.#buffer_idx++;
+        SavedState.#buffer.splice(SavedState.#buffer_idx);
+        //console.log(SavedState.#buffer);
+        
+    }
+
+    static get_buffer() {
+        return SavedState.#buffer;
+    }
+
+    static inc_buffer(i) {
+        SavedState.#buffer_idx = Utils.clamp(0,this.#buffer_idx+i,this.#buffer.length);
+    }
+
+    static redo() {
+        //console.log(this.#buffer);
+        //console.log(this.#buffer_idx);
+        if (this.#buffer.length==0 || this.#buffer_idx>=this.#buffer.length) {return;}
+        SavedState.#buffer[SavedState.#buffer_idx].redo();
+        SavedState.#buffer_idx = Utils.clamp(0,this.#buffer_idx+1,this.#buffer.length);
+        //console.log(this.#buffer_idx);
+    }
+
+    static undo() {
+        //console.log(this.#buffer);
+        //console.log(this.#buffer_idx);
+        if (this.#buffer.length==0 || this.#buffer_idx<=0) {return;}
+        SavedState.#buffer_idx = Utils.clamp(0,this.#buffer_idx-1,this.#buffer.length);
+        SavedState.#buffer[SavedState.#buffer_idx].undo();
+        //console.log(this.#buffer_idx);
+    }
+
+    undo() {
+        
+        switch(this.type) {
+            case "delete":
+                console.log("delete undone");
+                this.held_data.forEach(hd=>{
+                    if (hd.body_idx) {
+                        Body.get_entity_list().splice(hd.body_idx,0,hd.obj);
+                    }
+                    if (hd.static_body_idx) {
+                        StaticBody.get_entity_list().splice(hd.static_body_idx,0,hd.obj);
+                    }
+                    if (hd.kinetic_body_idx) {
+                        KineticBody.get_entity_list().splice(hd.kinetic_body_idx,0,hd.obj);
+                    }
+                });
+                break;
+            case "move":
+                console.log("move undone");
+                this.held_data.forEach(hd=>{
+                    //console.log(hd.obj);
+                    //console.log(hd.x,hd.y);
+                    hd.new_x = hd.obj.x;
+                    hd.new_y = hd.obj.y;
+                    
+                    hd.obj.x = hd.x;
+                    hd.obj.y = hd.y;
+                });
+                break;
+            default:
+                break;
+        }
+    }
+    redo() {
+        switch(this.type) {
+            case "delete":
+                console.log("delete redone");
+                this.held_data.forEach(hd=>{
+                    if (hd.body_idx) {
+                        Body.get_entity_list().splice(hd.body_idx,1);
+                    }
+                    if (hd.static_body_idx) {
+                        StaticBody.get_entity_list().splice(hd.static_body_idx,1);
+                    }
+                    if (hd.kinetic_body_idx) {
+                        KineticBody.get_entity_list().splice(hd.kinetic_body_idx,1);
+                    }
+                });
+                break;
+            case "move":
+                console.log("move redone");
+                this.held_data.forEach(hd=>{
+                    //console.log(hd.obj);
+                    //console.log(hd.x,hd.y);
+                    
+                    hd.obj.x = hd.new_x;
+                    hd.obj.y = hd.new_y;
+                });
+                break;
+            default:
+                break;
+        }
     }
 }

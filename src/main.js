@@ -26,6 +26,8 @@ let sky_color = "rgba(255, 255, 255, 1)";
 const rect = new RectShape(370,150)
 new StaticBody(250,200,new CollisionArea(100,400,rect));
 new StaticBody(250,200,new CollisionArea(600,350,rect));
+new StaticBody(250,200,new CollisionArea(-300,350,rect));
+new StaticBody(250,200,new CollisionArea(-300,150,rect));
 const menubar = new MenuBar();
 camera.target = player;
 
@@ -99,7 +101,7 @@ function debug() {
             mouse.last_x?`(${mouse.last_x.toFixed(2)},${mouse.last_y.toFixed(2)})`:"(undefined,undefined)",
             "Up: " + mouse.up + ", Down: " + mouse.down,
             mouse.hovered? "hovered: " + mouse.hovered.get_id() : "hovered: null",
-            "held: " + mouse.held.length,
+            "held length: " + mouse.held.length,
             "held data: " + mouse.held_data_arr.length,
             "moving: " + mouse.moving,
             "clicked: " + mouse.clicked,

@@ -36,6 +36,9 @@ export default class GuiButton extends GuiObject{
     clicked = false;
     held = false;
 
+    clicked_display_lifetimer = 8;
+    clicked_display_lifetime = 0;
+
 
     name="";
 
@@ -71,6 +74,20 @@ export default class GuiButton extends GuiObject{
         this.set_status();
         if (this.hovered) this.on_hover();
         if (this.clicked) this.on_click();
+        this.handle_display_timers();
+    }
+
+    handle_display_timers() {
+        if (this.clicked_display_lifetime>0) {
+            this.clicked_display_lifetime++;
+        }
+        if (this.clicked_display_lifetime>=this.clicked_display_lifetimer) {
+            this.clicked_display_lifetime=0;
+        }
+
+        if (this.clicked) {
+            this.clicked_display_lifetime++;
+        }
     }
 
 
