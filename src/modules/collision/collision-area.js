@@ -3,6 +3,7 @@ import Geometry from "../geometry/geometry.js";
 import Point from "../geometry/point.js";
 import Shape from "../geometry/shapes/shape.js";
 import mouse from "../mouse.js";
+import Utils from "../utils.js";
 import Collision from "./collision.js";
 
 export default class CollisionArea {
@@ -16,6 +17,9 @@ export default class CollisionArea {
     y;
     /**@type {Point[]} */
     offset_points = [];
+
+    /**@type {Point[]} */
+    base_offset_points = [];
 
     /**
      * 
@@ -34,6 +38,7 @@ export default class CollisionArea {
         this.x = x;
         this.y = y;
         this.offset_points = shape.get_offset_points_copy();
+        this.base_offset_points = shape.get_offset_points_copy();
     }
 
     move(dx,dy) {
@@ -41,31 +46,52 @@ export default class CollisionArea {
         this.y+=dy;
     }
 
-    draw(offx=0,offy=0) {
-        //Point Parameters
-        const point_size = 2.5;
-        const origin_color = "rgba(159, 255, 185, 0.9)";
-        const line_width = point_size;
-        const text_size = 13;
-        
-        //Draw Offset Points
+    draw_edges(offx=0,offy=0,color="black",points_too=false,point_color) {
         this.offset_points.forEach((p,i,a)=>{
             const x = this.x + p.x + offx;
             const y = this.y + p.y + offy;
 
+            //Draw edge
             const np = a[(i+1)%a.length];
             const nx = this.x + np.x + offx;
             const ny = this.y + np.y + offy;
-            Draw.line(x,y,nx,ny,"black",.5);
-            Draw.point(x,y,p.size,"black",false,line_width);
-            Draw.point(x,y,p.size,p.color);
-            Draw.text(i,x+5,y+10,8);
+            Draw.line(x,y,nx,ny,color,.5);
+            
+            //Draw Point
+            if (points_too) {
+                if (point_color) {p.color = point_color}
+                p.draw(this.x+offx,this.y+offy);
+            }
+            //Draw.text(i,x+5,y+10,8);
         });
+    }
+
+    draw_offset_points(offx=0,offy=0) {
+        this.offset_points.forEach((p,i,a)=>{
+            const x = this.x + p.x + offx;
+            const y = this.y + p.y + offy;
+            
+            //Draw Point
+            p.draw(this.x+offx,this.y+offy);
+            //Draw.text(i,x+5,y+10,8);
+        });
+    }
+
+    draw(offx=0,offy=0,point_color) {
+        //Point Parameters
+        const origin_point_size = 3;
+        const origin_color = "rgba(244, 255, 159, 0.9)";
+        const border_width = Utils.clamp(.5,origin_point_size-1.5,Infinity);
+        
+        const origin_text_size = 10;
+
+        //Draw Offset Points
+        this.draw_edges(offx,offy,"black",true,point_color);
 
         //Draw Origin Point
-        Draw.point(this.x+offx,this.y+offy,point_size,"black",false,line_width-1);
-        Draw.point(this.x+offx,this.y+offy,point_size,origin_color);
-        Draw.text(this.#id,this.x+offx,this.y-5+offy,text_size);
+        Draw.point(this.x+offx,this.y+offy,origin_point_size,origin_color);
+        Draw.point(this.x+offx,this.y+offy,origin_point_size,"black",false,border_width,);
+        Draw.text(this.#id,this.x+offx,this.y-5+offy,origin_text_size);
     }
 
     get_id() {
@@ -118,14 +144,26 @@ export default class CollisionArea {
             mouse.hovered=null;
         }
         
+        if (mouse.hovered==this && !mouse.holding(this)) {
+            let point_held = false;
+            for (let i=0; i<this.offset_points.length; i++) {
+                const p = this.offset_points[i];
+                if (mouse.holding(p)) {
+                    point_held=true;
+                    break;
+                }
+            }
+            if (!point_held) {
+                this.draw_edges(0,0,"cyan",true,"cyan");
+            }
+        }
 
         if (mouse.holding(this)) {
             mouse.move_obj(this);
+            this.draw_edges(0,0,"blue",true,"cyan");
+            this.draw_edges(0,0,"cyan",true,"cyan");
             //Draw.point(this.x,this.y,point_size,"black",false,line_width-1);
             //Draw.point(this.x,this.y,point_size,origin_color);
-            this.offset_points.forEach((p)=>{
-                p.color = "red";
-            });
         }
         
     }

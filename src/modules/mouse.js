@@ -1,3 +1,7 @@
+import { body } from "../main.js";
+import Body from "./bodies/body.js";
+import KineticBody from "./bodies/kinetic-body.js";
+import StaticBody from "./bodies/static-body.js";
 import canvas, { ctx } from "./canvas.js";
 
 const mouse = {
@@ -6,8 +10,13 @@ const mouse = {
     /**@type {Number} */
     y:undefined,
     hovered:null,
+    clicked:null,
+    grabbing:false,
     held:[],
     held_data_arr:[],
+    clicked_lifetimer:9,
+    clicked_lifetime:0,
+    mode:undefined,
     down:false,
     up:true,
     /**@type {Number} */
@@ -23,6 +32,7 @@ const mouse = {
         }
     },
     move_obj:(obj)=>{
+        mouse.grabbing = true;
         let idx = mouse.holding(obj,true);
         if (idx==-1) {
             mouse.held.push(obj);
@@ -39,11 +49,78 @@ const mouse = {
         obj.y = mouse.y-dy;
     },
     moving:false,
-    handle_mouse:()=>{
-        mouse.moving = false;
-    },
+    handle_mouse:handle_mouse,
 }
 export default mouse;
+
+function handle_mouse() {
+    if (mouse.clicked) {
+        mouse.clicked_lifetime++;
+    }
+    if (mouse.clicked_lifetime>=mouse.clicked_lifetimer) {
+        mouse.clicked_lifetime = 0;
+        mouse.clicked = null;
+    }
+    
+    if (mouse.clicked) {
+        body.style.cursor = 'pointer';
+    }
+    else if (mouse.grabbing) {
+        body.style.cursor = 'grab';
+    }
+    else if (mouse.hovered) {
+        body.style.cursor = 'pointer';
+    }
+    else {
+        body.style.cursor = 'auto';
+    }
+
+    switch (mouse.mode) {
+        case "delete":
+            body.style.cursor = "not-allowed";
+            break;
+
+        default:
+            break;
+    }
+
+    if (mouse.mode=="delete" && mouse.held.length>0) {
+        console.log(mouse.held);
+        
+        mouse.held.forEach(h=>{
+            let type;
+
+            type = Body;
+            if (h instanceof type) {
+                let idx = type.get_entity_list().indexOf(h);
+                if (idx>=0) {
+                    type.get_entity_list().splice(idx,1);
+                    mouse.hovered = null;
+                }
+            }
+            type = StaticBody;
+            if (h instanceof type) {
+                let idx = type.get_entity_list().indexOf(h);
+                if (idx>=0) {
+                    type.get_entity_list().splice(idx,1);
+                    mouse.hovered = null;
+                }
+            }
+            type = KineticBody;
+            if (h instanceof type) {
+                let idx = type.get_entity_list().indexOf(h);
+                if (idx>=0) {
+                    type.get_entity_list().splice(idx,1);
+                    mouse.hovered = null;
+                }
+            }
+        });
+    }
+
+
+    mouse.moving = false;
+    mouse.grabbing = false;
+}
 
 addEventListener("mousemove",(e)=>{
     const canvas_box = canvas.getBoundingClientRect();
@@ -62,6 +139,7 @@ addEventListener("mousemove",(e)=>{
 });
 
 addEventListener("mousedown",e=>{
+    
     mouse.down = true;
     mouse.up = false;
 
@@ -70,6 +148,10 @@ addEventListener("mousedown",e=>{
         mouse.held_data_arr.push(new HeldData(mouse.hovered));
     }
     
+    if (!mouse.clicked) {
+        mouse.clicked=mouse.hovered;
+    }
+
 })
 
 addEventListener("mouseup",e=>{

@@ -1,6 +1,7 @@
 import Body from "./bodies/body.js";
 import canvas, { ctx } from "./canvas.js";
 import Draw from "./draw.js";
+import keyboard from "./keyboard.js";
 import mouse from "./mouse.js";
 import Utils from "./utils.js";
 import player from "./world-entities/player.js";
@@ -31,6 +32,7 @@ const camera = {
     },
     handle_camera:handle_camera,
     follow_target:follow_target,
+    handle_zoom_controls:handle_zoom_controls,
     set_zoom:(z)=>{
         camera.zoom = z;
     },
@@ -52,11 +54,26 @@ const camera = {
             //mouse.y = mouse.last_y + dy;
         }
     },
+    target:undefined,
 
 }
 export default camera;
 
+function handle_zoom_controls() {
+    const zoom_out = keyboard.is_pressed("o");
+    const zoom_in = keyboard.is_pressed("p");
+    const zoom_const = .10;
+    
+    if (zoom_out) {
+        camera.inc_zoom(-zoom_const);
+    }
+    if (zoom_in) {
+        camera.inc_zoom(zoom_const);
+    }
+}
+
 function handle_camera() {
+    const debug = !true;
     const t = ctx.getTransform();
     let a = t.a;
     let b = t.b;
@@ -89,24 +106,27 @@ function handle_camera() {
 
 
 
-    
-    //draw camera border
-    ctx.strokeStyle = "red";
-    ctx.lineWidth = 10*zf;
-    ctx.strokeRect(camera.x,camera.y,camera.width,camera.height);
-    //console.log(box.x);
-    
-    //draw box border
-    ctx.strokeStyle = "magenta"
-    ctx.lineWidth = 5*zf;
-    ctx.strokeRect(view.x,view.y,view.width,view.height);
+    if (debug) {
+        //draw camera border
+        ctx.strokeStyle = "red";
+        ctx.lineWidth = 10*zf;
+        ctx.strokeRect(camera.x,camera.y,camera.width,camera.height);
+        //console.log(box.x);
+        
+        //draw box border
+        ctx.strokeStyle = "magenta"
+        ctx.lineWidth = 5*zf;
+        ctx.strokeRect(view.x,view.y,view.width,view.height);
 
-    //draw origin line
-    Draw.line(0,camera.y,0,camera.y2,"blue",1*zf);
-    Draw.line(camera.x,0,camera.x2,0,"blue",1*zf);
+        //draw origin line
+        Draw.line(0,camera.y,0,camera.y2,"blue",1*zf);
+        Draw.line(camera.x,0,camera.x2,0,"blue",1*zf);
+    }
 }
 
-function follow_target(target) {
+function follow_target() {
+    const target = camera.target;
+    if (!target) {return;}
     const debug = true;
     const z = camera.zoom;
     const zf = 1/z;
@@ -167,12 +187,14 @@ function follow_target(target) {
 
     if (ty>by2) {
         const yfs = !mouse.holding(target)? (ty-by2)*yfc: cfs;
-        camera.move(0,yfs);
+        //camera.move(0,yfs);
     }
     if (ty<by1) {
         const yfs = !mouse.holding(target)? (ty-by1)*yfc: -cfs;
-        camera.move(0,yfs);
+        //camera.move(0,yfs);
     }
 
 
 }
+
+

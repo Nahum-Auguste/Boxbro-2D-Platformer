@@ -11,9 +11,12 @@ import KineticBody from "./modules/bodies/kinetic-body.js";
 import player from "./modules/world-entities/player.js";
 import keyboard from "./modules/keyboard.js";
 import camera from "./modules/camera.js";
+import MenuBar from "./modules/visuals/gui/menu-bar.js";
+import gui_surface from "./modules/visuals/gui/gui-surface.js";
+import GuiObject from "./modules/visuals/gui/gui-object.js";
 
 // Document Variables
-const body = document.getElementsByTagName("body")[0];
+export const body = document.getElementsByTagName("body")[0];
 
 // Debugging Variables
 const show_debug = true;
@@ -23,11 +26,14 @@ let sky_color = "rgba(255, 255, 255, 1)";
 const rect = new RectShape(370,150)
 new StaticBody(250,200,new CollisionArea(100,400,rect));
 new StaticBody(250,200,new CollisionArea(600,350,rect));
+const menubar = new MenuBar();
+camera.target = player;
 
 
 // Execution
 const main = ()=> {
     create_debug_section();
+    
     loop();
     //camera.move(0,0);
 }
@@ -38,10 +44,13 @@ function loop() {
     ctx.clearRect(view.x,view.y,view.width,view.height);
     draw();
     physics();
-    debug();
     camera.handle_camera();
     mouse.handle_mouse();
+    debug();
+    gui();
 
+
+    if (show_debug) {camera.handle_zoom_controls();}
     requestAnimationFrame(loop);
 }
 
@@ -52,11 +61,19 @@ function draw() {
     ctx.fillRect(view.x,view.y,view.width,view.height);
 }
 
+function gui() {
+    menubar.loop();
+    menubar.draw();
+    menubar.handle_debug_mode();
+}
+
 function physics() {
     Body.get_entity_list().forEach(b=>{
         b.physics();
     });
 }
+
+
 
 function debug() {
     if (!show_debug) {return;}
@@ -70,16 +87,6 @@ function debug() {
     });
     
     const view = camera.get_view();
-    const zoom_out = keyboard.is_pressed("o");
-    const zoom_in = keyboard.is_pressed("p");
-    const zoom_const = .10;
-    
-    if (zoom_out) {
-        camera.inc_zoom(-zoom_const);
-    }
-    if (zoom_in) {
-        camera.inc_zoom(zoom_const);
-    }
     //camera.move(3,-1);
     //console.log(camera.zoom);
     //console.log(ctx.getTransform());
@@ -95,6 +102,10 @@ function debug() {
             "held: " + mouse.held.length,
             "held data: " + mouse.held_data_arr.length,
             "moving: " + mouse.moving,
+            "clicked: " + mouse.clicked,
+            "clicked lifetime: " + mouse.clicked_lifetime,
+            "grabbing: " + mouse.grabbing,
+            "mode: " + mouse.mode,
         ],
         [
             "Body Data:",
@@ -146,8 +157,6 @@ function debug() {
             p.style.width = 0;
         }
     }
-
-    
 }
 
 function create_debug_section() {

@@ -46,14 +46,19 @@ export default class Draw {
         }
     }
 
-    static area(points=[],color="black") {
+    static area(points=[],color="black",offx=0,offy=0) {
         if (Array.isArray(points[0])) {
             points = Geometry.generate_points(points);
         }
 
         ctx.beginPath();
-        points.forEach(p=>{
-            ctx.moveTo(p.x,p.y);
+        points.forEach((p,i)=>{
+            if (i==0) {
+                ctx.moveTo(p.x+offx,p.y+offy);
+            }
+            else {
+                ctx.lineTo(p.x+offx,p.y+offy);
+            }
         })
         ctx.closePath();
         ctx.fillStyle=color;

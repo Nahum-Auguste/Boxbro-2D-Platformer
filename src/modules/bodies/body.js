@@ -1,6 +1,7 @@
 import CollisionArea from "../collision/collision-area.js";
 import Draw from "../draw.js";
 import mouse from "../mouse.js";
+import Utils from "../utils.js";
 
 export default class Body {
     class_name = Body;
@@ -34,9 +35,12 @@ export default class Body {
         if (this.collision_area) {
             this.collision_area.handle_debug_mode();
         }
-        Draw.point(this.x,this.y,3,"black",false);
-        Draw.point(this.x,this.y,3,"pink");
-        Draw.text(this.get_id(),this.x,this.y-5);
+        const origin_point_size = 3;
+        const origin_color = "rgba(178, 197, 255, 1)";
+        const border_width = Utils.clamp(.5,origin_point_size-1.5,Infinity);
+        Draw.point(this.x,this.y,origin_point_size,origin_color);
+        Draw.point(this.x,this.y,origin_point_size,"black",false,border_width);
+        Draw.text(this.get_id(),this.x,this.y-5,10);
 
         //Draw.line(this.x,this.y,this.collision_area.x,this.collision_area.y);
         if (mouse.holding(this.collision_area)) {

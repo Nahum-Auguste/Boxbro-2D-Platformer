@@ -1,4 +1,5 @@
 import Draw from "../draw.js";
+import Utils from "../utils.js";
 
 export default class Point {
     x;
@@ -11,7 +12,7 @@ export default class Point {
 
     base_color="rgba(252, 252, 252, 0.9)";
     color=this.base_color;
-    base_size=3;
+    base_size=2;
     size = this.base_size;
     constructor (x,y) {
         const class_name = Point;
@@ -24,8 +25,13 @@ export default class Point {
         this.y=y;
 
     }
-    draw() {
-        Draw.point(this.x,this.y,3);
+    draw(offx=0,offy=0) {
+        const x = this.x + offx;
+        const y = this.y + offy;
+        const border_width = Utils.clamp(1,this.size-1.5,Infinity);
+        Draw.point(x,y,this.size,"black",false,border_width);
+        Draw.point(x,y,this.size,this.color);
+        Draw.text(this.#id,x+5,y+10,8);
     }
 
     get_id() {
