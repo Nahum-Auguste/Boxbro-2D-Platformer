@@ -23,7 +23,7 @@ export default class GuiButton extends GuiObject{
     hovered_drawing;
 
     /**@type {Drawing} */
-    //held_drawing;
+    held_drawing;
 
     /**@type {Drawing} */
     clicked_drawing;
@@ -59,7 +59,7 @@ export default class GuiButton extends GuiObject{
 
         this.x = x;
         this.y = y;
-        this.collision_area = collision_area;
+        this.collision_area = collision_area.get_copy();
         this.base_drawing = drawing.get_copy();
         this.drawing = drawing.get_copy();
         this.name = name;
@@ -125,6 +125,9 @@ export default class GuiButton extends GuiObject{
 
         if ((this.clicked || this.clicked_display_lifetime) && this.clicked_drawing) {
             this.drawing = this.clicked_drawing;
+        }
+        else if ((this.held) && this.held_drawing) {
+            this.drawing = this.held_drawing;
         }
         else if (this.hovered && this.hovered_drawing) {
             this.drawing = this.hovered_drawing;

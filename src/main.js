@@ -8,12 +8,13 @@ import Collision from "./modules/collision/collision.js";
 import StaticBody from "./modules/bodies/static-body.js";
 import Body from "./modules/bodies/body.js";
 import KineticBody from "./modules/bodies/kinetic-body.js";
-import player from "./modules/world-entities/player.js";
+import Player from "./modules/world-entities/player.js";
 import keyboard from "./modules/keyboard.js";
 import camera from "./modules/camera.js";
-import MenuBar from "./modules/visuals/gui/menu-bar.js";
+import menubar from "./modules/visuals/gui/gui-bodies/menu-bar.js";
 import gui_surface from "./modules/visuals/gui/gui-surface.js";
 import GuiObject from "./modules/visuals/gui/gui-object.js";
+import sidebar from "./modules/visuals/gui/gui-bodies/side-bar.js";
 
 // Document Variables
 export const body = document.getElementsByTagName("body")[0];
@@ -28,7 +29,7 @@ new StaticBody(250,200,new CollisionArea(100,400,rect));
 new StaticBody(250,200,new CollisionArea(600,350,rect));
 new StaticBody(250,200,new CollisionArea(-300,350,rect));
 new StaticBody(250,200,new CollisionArea(-300,150,rect));
-const menubar = new MenuBar();
+const player = new Player(250,100);
 camera.target = player;
 
 
@@ -67,6 +68,9 @@ function gui() {
     menubar.loop();
     menubar.draw();
     menubar.handle_debug_mode();
+    sidebar.loop();
+    sidebar.draw();
+    sidebar.handle_debug_mode();
 }
 
 function physics() {

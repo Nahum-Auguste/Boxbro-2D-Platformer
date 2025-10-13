@@ -3,6 +3,8 @@ import Body from "./bodies/body.js";
 import KineticBody from "./bodies/kinetic-body.js";
 import StaticBody from "./bodies/static-body.js";
 import canvas, { ctx } from "./canvas.js";
+import Draw from "./draw.js";
+import Point from "./geometry/point.js";
 import Utils from "./utils.js";
 
 const mouse = {
@@ -21,6 +23,7 @@ const mouse = {
     default_mode:"move",
     down:false,
     up:true,
+    will_create:undefined,
     /**@type {Number} */
     last_x:undefined,
     /**@type {Number} */
@@ -34,6 +37,7 @@ const mouse = {
         }
     },
     move_obj:(obj)=>{
+        if (mouse.mode!=="move") {return;}
         mouse.grabbing = true;
         let idx = mouse.holding(obj,true);
         const hd = new HeldData(obj);
@@ -81,6 +85,15 @@ function handle_mouse() {
     switch (mouse.mode) {
         case "delete":
             body.style.cursor = "not-allowed";
+            break;
+        case "create":
+            body.style.cursor = "crosshair";
+            if (mouse.will_create) {
+                Draw.text("Create " + mouse.will_create.name,mouse.x,mouse.y-15)
+            }
+            else {
+                Draw.text("Create Nothing",mouse.x,mouse.y-15)
+            }
             break;
 
         default:
@@ -175,7 +188,7 @@ addEventListener("mousedown",e=>{
         let data = [];
 
         mouse.held.forEach(h=>{
-            if (!(h instanceof Body)) {return;}
+            if (!(h instanceof Body) && !(h instanceof Point)) {return;}
             //console.log(h);
             
             const hd = new HeldData(h);
@@ -188,6 +201,11 @@ addEventListener("mousedown",e=>{
         if (data.length>0) {
             new SavedState(data,"move");
         }
+    }
+    if (mouse.mode=="create" && mouse.will_create) {
+        const c = new mouse.will_create(mouse.x,mouse.y);
+
+        new SavedState(new HeldData(c),"create");
     }
 
 })
@@ -352,6 +370,21 @@ export class SavedState {
                     hd.obj.y = hd.y;
                 });
                 break;
+            case "create":
+                console.log("create undone");
+                this.held_data.forEach(hd=>{
+                    if (hd.body_idx) {
+                        Body.get_entity_list().splice(hd.body_idx,1);
+                    }
+                    if (hd.static_body_idx) {
+                        StaticBody.get_entity_list().splice(hd.static_body_idx,1);
+                    }
+                    if (hd.kinetic_body_idx) {
+                        KineticBody.get_entity_list().splice(hd.kinetic_body_idx,1);
+                    }
+                });
+                break;
+                
             default:
                 break;
         }
@@ -382,6 +415,19 @@ export class SavedState {
                     hd.obj.y = hd.new_y;
                 });
                 break;
+            case "create":
+                console.log("create redone");
+                this.held_data.forEach(hd=>{
+                    if (hd.body_idx) {
+                        Body.get_entity_list().splice(hd.body_idx,0,hd.obj);
+                    }
+                    if (hd.static_body_idx) {
+                        StaticBody.get_entity_list().splice(hd.static_body_idx,0,hd.obj);
+                    }
+                    if (hd.kinetic_body_idx) {
+                        KineticBody.get_entity_list().splice(hd.kinetic_body_idx,0,hd.obj);
+                    }
+                });
             default:
                 break;
         }

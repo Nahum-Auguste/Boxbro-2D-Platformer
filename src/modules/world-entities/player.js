@@ -7,7 +7,7 @@ import RectShape from "../geometry/shapes/rect-shape.js";
 
 
 
-class Player extends KineticBody {
+export default class Player extends KineticBody {
     base_spd;
     spd = this.base_spd;
 
@@ -21,9 +21,14 @@ class Player extends KineticBody {
 
     movement_vector = new Vector(0,0);
 
-    constructor(x,y,collision_area,spd=0) {
+    constructor(x,y) {
+        const w = 50;
+        const h = w;
+        const cx = x - w/2;
+        const cy = y - h/2;
+        const collision_area = new CollisionArea(cx,cy,new RectShape(w,h));
         super(x,y,collision_area);
-        this.base_spd = spd;
+        this.base_spd = 4;
         this.spd = this.base_spd;
     }
 
@@ -153,6 +158,3 @@ class Player extends KineticBody {
 
     
 }
-
-const player = new Player(250,100, new CollisionArea(200,100,new RectShape(50,50)),4);
-export default player;

@@ -21,6 +21,8 @@ export default class CollisionArea {
     /**@type {Point[]} */
     base_offset_points = [];
 
+    shape;
+
     /**
      * 
      * @param {*} x 
@@ -34,11 +36,15 @@ export default class CollisionArea {
         this.#idx = class_name.#entity_list.length-1;
         this.#id = class_nickname + this.#idx;
 
-
+        this.shape = shape;
         this.x = x;
         this.y = y;
         this.offset_points = shape.get_offset_points_copy();
         this.base_offset_points = shape.get_offset_points_copy();
+    }
+
+    get_copy() {
+        return new CollisionArea(this.x,this.y,this.shape);
     }
 
     move(dx,dy) {
@@ -128,33 +134,35 @@ export default class CollisionArea {
         const held_color = "rgba(255, 78, 34, 1)";
         const line_width = point_size;        
 
-        this.offset_points.forEach((p,i)=>{
-            if (!mouse.hovered && Collision.point_with_point(this.x+p.x,this.y+p.y,mouse.x,mouse.y,detection_radius)) {
-                mouse.hovered = p;
-            }
+        if (mouse.mode=="move") {
+            this.offset_points.forEach((p,i)=>{
+                if (!mouse.hovered && Collision.point_with_point(this.x+p.x,this.y+p.y,mouse.x,mouse.y,detection_radius)) {
+                    mouse.hovered = p;
+                }
 
-            if (mouse.hovered==p && !Collision.point_with_point(this.x+p.x,this.y+p.y,mouse.x,mouse.y,detection_radius)) {
-                mouse.hovered=null;
-            }
+                if (mouse.hovered==p && !Collision.point_with_point(this.x+p.x,this.y+p.y,mouse.x,mouse.y,detection_radius)) {
+                    mouse.hovered=null;
+                }
 
-            if (mouse.hovered==p) {
-                p.color = hover_color;
-                p.size=p.base_size+1;
-            }
-            else {
-                p.color = p.base_color;
-                p.size = p.base_size;
-            }
+                if (mouse.hovered==p) {
+                    p.color = hover_color;
+                    p.size=p.base_size+1;
+                }
+                else {
+                    p.color = p.base_color;
+                    p.size = p.base_size;
+                }
 
-            if (mouse.holding(p)) {
-                p.x = mouse.x - this.x;
-                p.y = mouse.y - this.y;
-                p.color = "pink";
-                //Draw.point(this.x+p.x,this.y+p.y,p.size,"black",false,line_width-1);
-                //Draw.point(this.x+p.x,this.y+p.y,p.size,p.color);
-            }
-        })
-
+                if (mouse.holding(p)) {
+                    mouse.move_obj(p);
+                    //p.x = mouse.x - this.x;
+                    //p.y = mouse.y - this.y;
+                    p.color = "pink";
+                    //Draw.point(this.x+p.x,this.y+p.y,p.size,"black",false,line_width-1);
+                    //Draw.point(this.x+p.x,this.y+p.y,p.size,p.color);
+                }
+            })
+        }
         /*
         if (!mouse.hovered && this.is_point_colliding(mouse.x,mouse.y)) {
             mouse.hovered=this;

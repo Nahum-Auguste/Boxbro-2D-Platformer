@@ -53,23 +53,25 @@ export default class Body {
         Draw.point(this.x,this.y,origin_point_size,"black",false,border_width);
         Draw.text(this.get_id(),this.x,this.y-5,10);
 
-        if (mouse.hovered==this) {
-            this.collision_area.draw_on_hover();
-        }
+        if (mouse.mode=="move" || mouse.mode=="delete") {
+            if (mouse.hovered==this) {
+                this.collision_area.draw_on_hover();
+            }
 
-        //Draw.line(this.x,this.y,this.collision_area.x,this.collision_area.y);
-        if (this.collision_area.is_point_colliding(mouse.x,mouse.y) && mouse.hovered==null) {
-            mouse.hovered = this;
-        }
+            //Draw.line(this.x,this.y,this.collision_area.x,this.collision_area.y);
+            if (this.collision_area.is_point_colliding(mouse.x,mouse.y) && mouse.hovered==null) {
+                mouse.hovered = this;
+            }
 
-        if (mouse.hovered==this && !this.collision_area.is_point_colliding(mouse.x,mouse.y)) {
-            mouse.hovered=null;
-        }
+            if (mouse.hovered==this && !this.collision_area.is_point_colliding(mouse.x,mouse.y)) {
+                mouse.hovered=null;
+            }
 
-        if (mouse.holding(this)) {
-            this.collision_area.draw_on_hold();
-            mouse.move_obj(this);
-            //mouse.move_obj(this.collision_area);
+            if (mouse.holding(this)) {
+                this.collision_area.draw_on_hold();
+                mouse.move_obj(this);
+                //mouse.move_obj(this.collision_area);
+            }
         }
     }
 

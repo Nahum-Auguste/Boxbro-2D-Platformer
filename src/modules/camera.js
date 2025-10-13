@@ -73,7 +73,7 @@ function handle_zoom_controls() {
 }
 
 function handle_camera() {
-    const debug = !true;
+    const debug = true;
     const t = ctx.getTransform();
     let a = t.a;
     let b = t.b;
@@ -127,7 +127,7 @@ function handle_camera() {
 function follow_target() {
     const target = camera.target;
     if (!target) {return;}
-    const debug = true;
+    const debug = !true;
     const z = camera.zoom;
     const zf = 1/z;
 
@@ -157,7 +157,7 @@ function follow_target() {
     const ty = tp.y;
 
     //draw target origin line
-    if (!debug) {
+    if (debug) {
         Draw.line(tx,view.y,tx,view.y2,"pink",2*zf);//vertical
         Draw.line(view.x,ty,view.x2,ty,"pink",2*zf);//horizontal
 
